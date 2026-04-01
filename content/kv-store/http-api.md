@@ -104,15 +104,15 @@ Values are stored as UTF-8 encoded text and can contain:
 Your server must accept `--port` and `--working-dir` flags:
 
 ```console
-$ ./run.sh --port 8001 --working-dir .lc/run-20251226-210357
+$ ./run.sh --port 8001 --working-dir .clstr/2025-12-26 21:03:57
 ```
 
 For this stage, you only need `--port` to start your HTTP server. The `--working-dir` parameter will become important in the next stage when you add persistence. For now, it's just where your server's logs end up (`node.log`).
 
-You can test your implementation using the `lc` command:
+You can test your implementation using the `clstr` command:
 
 ```console
-$ lc test http-api
+$ clstr test http-api
 Testing http-api: Store and Retrieve Data
 
 ✓ PUT Basic Operations
@@ -128,17 +128,17 @@ Testing http-api: Store and Retrieve Data
 
 PASSED ✓
 
-Run 'lc next' to advance to the next stage.
+Run 'clstr next' to advance to the next stage.
 ```
 
 ### Debugging
 
 Your server's output (`stdout`/`stderr`) is captured in `node.log` inside the working directory. Add your own logging to help debug issues.
 
-When tests fail, `lc` will show you exactly what went wrong:
+When tests fail, `clstr` will show you exactly what went wrong:
 
 ```console
-$ lc test
+$ clstr test
 Testing http-api: Store and Retrieve Data
 
 ✓ PUT Basic Operations
@@ -155,5 +155,5 @@ GET http://127.0.0.1:42409/kv/nonexistent:key
 
 FAILED ✗
 
-Read the guide: littleclusters.com/kv-store/http-api
+Read the guide: clstr.io/kv-store/http-api
 ```

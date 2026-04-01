@@ -7,7 +7,7 @@ weight: 1
 
 Reading about how systems work is one thing. Building them is another.
 
-LittleClusters breaks down complex distributed systems into manageable stages you can actually implement. Build distributed systems from scratch: databases, caches, message queues, lock services, and more. Each challenge teaches different distributed systems patterns like consensus, replication, partitioning, and fault tolerance. Each challenge starts simple and adds complexity one stage at a time.
+clstr.io breaks down complex distributed systems into manageable stages you can actually implement. Build distributed systems from scratch: databases, caches, message queues, lock services, and more. Each challenge teaches different distributed systems patterns like consensus, replication, partitioning, and fault tolerance. Each challenge starts simple and adds complexity one stage at a time.
 
 You write real code that actually works. Tests verify your implementation handles the hard problems: network failures, crash recovery, concurrent access, etc. By the end, you understand these systems because you've built them yourself.
 
@@ -31,22 +31,22 @@ Start with the [distributed key-value store challenge](/kv-store/); it's a great
 
 ### Scaffolding
 
-Run `lc init kv-store` to create a new challenge directory with:
+Run `clstr init kv-store` to create a new challenge directory with:
 
 - `run.sh` - Builds and runs your implementation
 - `README.md` - Challenge overview and requirements
-- `lc.state` - Tracks your progress
-- `.gitignore` - Ignores `.lc/` working directory (server files and logs)
+- `clstr.state` - Tracks your progress
+- `.gitignore` - Ignores `.clstr/` working directory (server files and logs)
 
-Update `run.sh` with the commands to build and run your implementation. You can use _any_ language - Go, Python, Rust, even Ponylang - as long as `run.sh` can start your program and pass through any command-line arguments from `lc test`.
+Update `run.sh` with the commands to build and run your implementation. You can use _any_ language - Go, Python, Rust, even Ponylang - as long as `run.sh` can start your program and pass through any command-line arguments from `clstr test`.
 
 ## Implement & Test
 
-Write your implementation in any language to solve the challenge's first stage. When ready, run `lc test` to verify your solution works correctly. The tests focus on behavior, not implementation details.
+Write your implementation in any language to solve the challenge's first stage. When ready, run `clstr test` to verify your solution works correctly. The tests focus on behavior, not implementation details.
 
 ## Advance Through Stages
 
-Pass the current stage, then run `lc next` to unlock the next stage. Each stage builds on the previous one, gradually adding complexity.
+Pass the current stage, then run `clstr next` to unlock the next stage. Each stage builds on the previous one, gradually adding complexity.
 
 By the end of the challenge, you'll have a deep understanding of how these systems actually work because you built one yourself.
 

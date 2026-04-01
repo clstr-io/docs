@@ -1,6 +1,6 @@
-# LittleClusters
+# clstr.io
 
-LittleClusters is a platform for learning distributed systems and databases through incremental,
+clstr.io is a platform for learning distributed systems and databases through incremental,
 project-based challenges. Developers build real distributed systems (consensus-based
 stores, leaderless caches, message queues, blockchains, CRDTs) in any language,
 verified by behavioral tests that simulate network failures, crashes, and real-world
@@ -8,25 +8,25 @@ scenarios.
 
 ## Main Pages
 
-- Home: https://littleclusters.com/
+- Home: https://clstr.io/
   Project-based learning approach and getting started
 
-- How It Works: https://littleclusters.com/how-it-works/
+- How It Works: https://clstr.io/how-it-works/
   CLI tool, testing system, and workflow explanation
 
 ## Guides
 
-- CLI: https://littleclusters.com/guides/cli/
+- CLI: https://clstr.io/guides/cli/
   Command reference and usage examples
 
-- CI/CD: https://littleclusters.com/guides/ci-cd/
-  Integrating lc tests into continuous integration pipelines
+- CI/CD: https://clstr.io/guides/ci-cd/
+  Integrating clstr tests into continuous integration pipelines
 
 ## Challenges
 
 ### Distributed Key-Value Store
 
-https://littleclusters.com/kv-store/
+https://clstr.io/kv-store/
 
 A challenge building a distributed key-value store with Raft consensus.
 Covers HTTP APIs, persistence, replication, leader election, crash recovery,
@@ -34,5 +34,5 @@ log compaction, membership changes, and fault tolerance.
 
 ## GitHub Repositories
 
-- CLI Tool: https://github.com/littleclusters/lc
-- Documentation/Website: https://github.com/littleclusters/docs
+- CLI Tool: https://github.com/clstr-io/clstr
+- Documentation/Website: https://github.com/clstr-io/docs
