@@ -1,10 +1,10 @@
-baseURL = "https://littleclusters.com/"
+baseURL = "https://clstr.io/"
 languageCode = "en-us"
-title = "LittleClusters"
+title = "clstr.io"
 theme = "hugo-book"
 enableGitInfo = true
 enableRobotsTXT = true
-copyright = '[© CC BY 4.0](https://github.com/littleclusters/docs/blob/main/LICENSE)'
+copyright = '[© CC BY 4.0](https://github.com/clstr-io/docs/blob/main/LICENSE)'
 
 disableKinds = ["taxonomy", "term", "rss"]
 
@@ -23,7 +23,7 @@ disableKinds = ["taxonomy", "term", "rss"]
 [menu]
 [[menu.after]]
   name = "GitHub"
-  url = "https://github.com/littleclusters/lc"
+  url = "https://github.com/clstr-io/clstr"
   weight = 2000
 
 [markup]

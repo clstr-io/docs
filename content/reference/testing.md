@@ -15,7 +15,7 @@ A typical test suite:
 package kvstore
 
 import (
-    . "github.com/littleclusters/lc/internal/attest"
+    . "github.com/clstr-io/clstr/internal/attest"
 )
 
 func HTTPAPI() *Suite {
@@ -266,7 +266,7 @@ do.Start("node")
 do.Start("replica", "--seed=123")
 ```
 
-Port is auto-assigned by the OS. Services receive `--port` and `--working-dir` flags automatically. Each test run gets an isolated working directory like `run-20240115-143022`.
+Port is auto-assigned by the OS. Services receive `--port` and `--working-dir` flags automatically. Each test run gets an isolated working directory like `2024-01-15 14:30:22`.
 
 ### `Stop(name)`
 
@@ -389,7 +389,7 @@ Each stage is a function returning `*Suite`:
 package kvstore
 
 import (
-    . "github.com/littleclusters/lc/internal/attest"
+    . "github.com/clstr-io/clstr/internal/attest"
 )
 
 func HTTPAPI() *Suite {
@@ -425,7 +425,7 @@ Create `init.go`:
 ```go
 package kvstore
 
-import "github.com/littleclusters/lc/internal/registry"
+import "github.com/clstr-io/clstr/internal/registry"
 
 func init() {
     challenge := &registry.Challenge{
@@ -452,6 +452,6 @@ Import your challenge in `challenges/challenges.go`:
 package challenges
 
 import (
-    _ "github.com/littleclusters/lc/challenges/kvstore"
+    _ "github.com/clstr-io/clstr/challenges/kvstore"
 )
 ```

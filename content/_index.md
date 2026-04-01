@@ -4,21 +4,21 @@ title: Home
 
 # Learn by Building Real Systems
 
-You know that feeling when you read about Raft consensus or consistent hashing and think _"okay, but how would I actually implement this?"_ That gap between understanding concepts and building working systems is what LittleClusters is for.
+You know that feeling when you read about Raft consensus or consistent hashing and think _"okay, but how would I actually implement this?"_ That gap between understanding concepts and building working systems is what clstr.io is for.
 
 ## Project-Based Learning
 
 Learn by building complete, real-world systems rather than doing isolated exercises. You'll build distributed systems from scratch: key-value stores, message queues, caches, blockchains, and more. Learn consensus algorithms, replication strategies, and fault tolerance by implementing real-world patterns.
 
 ```console
-$ lc init kv-store
+$ clstr init kv-store
 Created challenge in current directory.
   run.sh       - Builds and runs your implementation
   README.md    - Challenge overview and requirements
-  lc.state     - Tracks your progress
-  .gitignore   - Ignores .lc/ working directory (server files and logs)
+  clstr.state  - Tracks your progress
+  .gitignore   - Ignores .clstr/ working directory (server files and logs)
 
-Implement http-api stage, then run 'lc test'.
+Implement http-api stage, then run 'clstr test'.
 ```
 
 ## Build Incrementally
@@ -28,7 +28,7 @@ Each stage introduces one new concept only after you've solidified the previous 
 The tests verify your system works by running it and checking behavior, not implementation details, so you can focus on learning the concepts without wrestling with complex setup.
 
 ```console
-$ lc test
+$ clstr test
 Testing http-api: Store and Retrieve Data
 
 ✓ PUT Basic Operations
@@ -44,33 +44,33 @@ Testing http-api: Store and Retrieve Data
 
 PASSED ✓
 
-Run 'lc next' to advance to the next stage.
+Run 'clstr next' to advance to the next stage.
 ```
 
 When you're ready, advance to the next stage:
 
 ```console
-$ lc next
+$ clstr next
 Advanced to persistence: Data Persistence
 
 Your system must survive restarts and handle concurrent writes.
 
-Read the guide: littleclusters.com/kv-store/persistence
+Read the guide: clstr.io/kv-store/persistence
 
-Run 'lc test' when ready.
+Run 'clstr test' when ready.
 ```
 
 ## Open-Source by Default
 
-All tests, tooling, reference implementations, and this website are open source. Check out [the CLI's source code](https://github.com/littleclusters/lc) and this [website's source code](https://github.com/littleclusters/docs).
+All tests, tooling, reference implementations, and this website are open source. Check out [the CLI's source code](https://github.com/clstr-io/clstr) and this [website's source code](https://github.com/clstr-io/docs).
 
 ```console
-$ lc list
+$ clstr list
 Available challenges:
 
   kv-store             - Distributed Key-Value Store (8 stages)
 
-Start with: lc init <challenge-name>
+Start with: clstr init <challenge-name>
 ```
 
 ## Ready to Build?

@@ -5,11 +5,11 @@ weight: 2
 
 # CI/CD
 
-Run `lc` tests automatically in GitHub Actions.
+Run `clstr` tests automatically in GitHub Actions.
 
 ## GitHub Actions
 
-Add `.github/workflows/littleclusters.yaml` to your repository:
+Add `.github/workflows/clstr.yaml` to your repository:
 
 ```yaml
 name: Test
@@ -25,17 +25,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: littleclusters/test@main
+      - uses: clstr-io/test@main
 ```
 
-The action runs `lc test` on every push to main and on pull requests.
+The action runs `clstr test` on every push to main and on pull requests.
 
 ### Custom Working Directory
 
-If your `littleclusters.yaml` isn't at the repository root:
+If your `clstr.yaml` isn't at the repository root:
 
 ```yaml
-- uses: littleclusters/test@main
+- uses: clstr-io/test@main
   with:
     working-directory: './my-challenge'
 ```

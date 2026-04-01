@@ -10,90 +10,90 @@ weight: 1
 ### `go install`
 
 ```console
-$ go install github.com/littleclusters/lc/cmd/lc@latest
+$ go install github.com/clstr-io/clstr/cmd/clstr@latest
 ```
 
-This installs `lc` to your `$GOPATH/bin` directory. Make sure it's in your `$PATH`.
+This installs `clstr` to your `$GOPATH/bin` directory. Make sure it's in your `$PATH`.
 
-You can also install a specific version using tags (see [available versions](https://github.com/littleclusters/lc/tags)):
+You can also install a specific version using tags (see [available versions](https://github.com/clstr-io/clstr/tags)):
 
 ```console
-$ go install github.com/littleclusters/lc/cmd/lc@v0.1.0
+$ go install github.com/clstr-io/clstr/cmd/clstr@v0.4.0
 ```
 
 #### Update
 
 ```console
-$ go install github.com/littleclusters/lc/cmd/lc@latest
+$ go install github.com/clstr-io/clstr/cmd/clstr@latest
 ```
 
 ### Homebrew
 
 ```console
-$ brew tap littleclusters/tap
-$ brew install littleclusters/tap/lc
+$ brew tap clstr-io/tap
+$ brew install clstr-io/tap/clstr
 ```
 
 #### Update
 
 ```console
-$ brew upgrade littleclusters/tap/lc
+$ brew upgrade clstr-io/tap/clstr
 ```
 
 ### Verify Installation
 
 ```console
-$ lc list
+$ clstr list
 Available challenges:
 
   kv-store             - Distributed Key-Value Store (8 stages)
 
-Start with: lc init <challenge-name>
+Start with: clstr init <challenge-name>
 ```
 
 ## Quick Start
 
 ```console
-$ lc init kv-store    # Create challenge in current directory
-$ lc test             # Test your implementation
-$ lc next             # Advance to the next stage
+$ clstr init kv-store    # Create challenge in current directory
+$ clstr test             # Test your implementation
+$ clstr next             # Advance to the next stage
 ```
 
-Edit `run.sh` to launch your implementation, then run `lc test` to get feedback.
+Edit `run.sh` to launch your implementation, then run `clstr test` to get feedback.
 
 > [!NOTE]
 > Commands support short aliases for faster typing:
-> - `lc i` → `lc init`
-> - `lc t` → `lc test`
-> - `lc n` → `lc next`
-> - `lc s` → `lc status`
-> - `lc l` or `lc ls` → `lc list`
+> - `clstr i` → `clstr init`
+> - `clstr t` → `clstr test`
+> - `clstr n` → `clstr next`
+> - `clstr s` → `clstr status`
+> - `clstr l` or `clstr ls` → `clstr list`
 
 ## Basic Workflow
 
 ### 1. Start a Challenge
 
 ```console
-$ lc init <challenge> [path]
+$ clstr init <challenge> [path]
 ```
 
 Creates a new challenge directory with:
 - `run.sh` - Script that builds and runs your implementation
 - `README.md` - Challenge overview and requirements
-- `lc.state` - Tracks your progress
-- `.gitignore` - Ignores `.lc/` working directory (server files and logs)
+- `clstr.state` - Tracks your progress
+- `.gitignore` - Ignores `.clstr/` working directory (server files and logs)
 
 **Examples:**
 
 ```console
-$ lc init kv-store           # Create in current directory
-$ lc init kv-store my-kvs    # Create in ./my-kvs
+$ clstr init kv-store           # Create in current directory
+$ clstr init kv-store my-kvs    # Create in ./my-kvs
 ```
 
 ### 2. Implement & Test
 
 Edit `run.sh` to start your implementation.
-The script must launch your server and pass through any arguments from `lc`:
+The script must launch your server and pass through any arguments from `clstr`:
 
 ```bash
 #!/bin/bash -e
@@ -114,14 +114,14 @@ exec go run ./cmd/server "$@"
 Then test:
 
 ```console
-$ lc test
+$ clstr test
 ```
 
 **When tests pass:**
 ```
 PASSED ✓
 
-Run 'lc next' to advance to the next stage.
+Run 'clstr next' to advance to the next stage.
 ```
 
 **When tests fail:**
@@ -135,65 +135,65 @@ PUT http://127.0.0.1:45123/kv/ "foo"
   Your server accepted an empty key when it should reject it.
   Add validation to return 400 Bad Request for empty keys.
 
-Read the guide: littleclusters.com/kv-store/http-api
+Read the guide: clstr.io/kv-store/http-api
 ```
 
-Fix the issues, then run `lc test` again. The CLI is designed for quick iteration, just keep running `lc test` as you make changes.
+Fix the issues, then run `clstr test` again. The CLI is designed for quick iteration, just keep running `clstr test` as you make changes.
 
 ### 3. Progress Through Stages
 
 ```console
-$ lc next
+$ clstr next
 ```
 
-Advances to the next stage after verifying the current stage passes. Updates `lc.state` automatically.
+Advances to the next stage after verifying the current stage passes. Updates `clstr.state` automatically.
 
-If the current stage hasn't been completed, `lc next` runs tests first and only advances if they pass.
+If the current stage hasn't been completed, `clstr next` runs tests first and only advances if they pass.
 
 ## Commands Reference
 
-Run `lc --help` to see all available commands, or `lc <command> --help` for command-specific options.
+Run `clstr --help` to see all available commands, or `clstr <command> --help` for command-specific options.
 
-### lc init
+### clstr init
 
-**Usage:** `lc init <challenge> [path]`
+**Usage:** `clstr init <challenge> [path]`
 
 Creates a new challenge in the specified directory (or current directory if not specified).
 
-### lc test
+### clstr test
 
-**Usage:** `lc test [stage]`
+**Usage:** `clstr test [stage]`
 
-Runs tests for the current stage (from `lc.state`) or a specific stage if provided.
+Runs tests for the current stage (from `clstr.state`) or a specific stage if provided.
 
 ```console
-$ lc test                # Test current stage
-$ lc test persistence    # Test specific stage
+$ clstr test                # Test current stage
+$ clstr test persistence    # Test specific stage
 ```
 
 **Flags:**
 - `--so-far` - Test all stages up to and including the specified stage
 
 ```console
-$ lc test persistence --so-far    # Test all stages from http-api through persistence
+$ clstr test persistence --so-far    # Test all stages from http-api through persistence
 ```
 
 This is useful for regression testing to ensure earlier stages still pass as you progress through the challenge.
 
-### lc next
+### clstr next
 
-**Usage:** `lc next`
+**Usage:** `clstr next`
 
-Advances to the next stage after verifying current stage passes all tests. Updates `lc.state` automatically.
+Advances to the next stage after verifying current stage passes all tests. Updates `clstr.state` automatically.
 
-### lc status
+### clstr status
 
-**Usage:** `lc status`
+**Usage:** `clstr status`
 
 Shows challenge progress and next steps:
 
 ```console
-$ lc status
+$ clstr status
 Distributed Key-Value Store
 
 Build a distributed key-value store from scratch using the Raft consensus algorithm.
@@ -208,18 +208,18 @@ Progress:
   fault-tolerance    - Cluster Survives Failures and Partitions
   log-compaction     - System Manages Log Growth
 
-Read the guide: littleclusters.com/kv-store/leader-election
+Read the guide: clstr.io/kv-store/leader-election
 
-Implement leader-election, then run 'lc test'.
+Implement leader-election, then run 'clstr test'.
 ```
 
-### lc list
+### clstr list
 
-**Usage:** `lc list`
+**Usage:** `clstr list`
 
 Lists all available challenges with stage counts.
 
-## Understanding lc.state
+## Understanding clstr.state
 
 The state file tracks your progress with a simple format:
 

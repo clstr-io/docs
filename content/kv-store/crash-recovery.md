@@ -75,13 +75,13 @@ Organize these in the working directory however makes sense - separate files, su
 Your server will be started with the working directory:
 
 ```console
-$ ./run.sh --port 8001 --working-dir .lc/run-20251226-210357
+$ ./run.sh --port 8001 --working-dir ".clstr/2025-12-26 21:03:57"
 ```
 
 Your server will be tested with unexpected crashes:
 
 ```console
-$ lc test crash-recovery
+$ clstr test crash-recovery
 Testing crash-recovery: Data Survives SIGKILL
 
 ✓ Basic WAL Durability
@@ -91,7 +91,7 @@ Testing crash-recovery: Data Survives SIGKILL
 
 PASSED ✓
 
-Run 'lc next' to advance to the next stage.
+Run 'clstr next' to advance to the next stage.
 ```
 
 The tests will:
