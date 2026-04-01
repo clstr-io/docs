@@ -1,0 +1,188 @@
+---
+title: clstr.io
+description: Learn distributed systems by building them from scratch.
+template: splash
+next: false
+---
+
+import { Card, CardGrid, LinkButton, LinkCard } from '@astrojs/starlight/components';
+
+<div class="lp-hero">
+  <h1 class="lp-title">Distributed systems,<br />from scratch.</h1>
+  <p class="lp-tagline">Build real distributed systems in any language. Each challenge breaks a complex system into stages, verified by tests that simulate network failures, crashes, and real-world conditions.</p>
+  <div class="lp-ctas">
+    <LinkButton href="/kv-store/">Get started</LinkButton>
+    <LinkButton href="/how-it-works/" variant="minimal">How it works</LinkButton>
+  </div>
+</div>
+
+<div class="lp-demo">
+
+```console
+$ clstr test
+Testing leader-election: Cluster Elects and Maintains Leader
+
+✓ Leader Election Completes
+✓ Exactly One Leader Per Term
+✓ Leader Maintains Authority via Heartbeats
+✓ Follower Redirects Clients to Leader
+✓ State Survives Crashes
+✓ Minority Partition Cannot Elect Leader
+✓ Majority Partition Elects Leader
+✓ Healing After Partition
+
+PASSED ✓
+
+Run 'clstr next' to advance to the next stage.
+```
+
+</div>
+
+<div class="lp-section">
+
+## How it works
+
+<div class="lp-steps">
+  <div class="lp-step">
+    <span class="lp-step-num">01</span>
+    <div>
+      <strong>Pick a challenge</strong>
+      <p>Each challenge is a real distributed system broken into stages. Start simple, add complexity one stage at a time.</p>
+    </div>
+  </div>
+  <div class="lp-step">
+    <span class="lp-step-num">02</span>
+    <div>
+      <strong>Build in any language</strong>
+      <p>Go, Rust, Python, whatever. Update <code>run.sh</code> to start your server. The tests only care about behavior.</p>
+    </div>
+  </div>
+  <div class="lp-step">
+    <span class="lp-step-num">03</span>
+    <div>
+      <strong>Run the tests</strong>
+      <p>Run <code>clstr test</code>. Tests simulate network failures, crashes, and real-world conditions against your implementation.</p>
+    </div>
+  </div>
+  <div class="lp-step">
+    <span class="lp-step-num">04</span>
+    <div>
+      <strong>Advance</strong>
+      <p>When you pass, run <code>clstr next</code>. Each stage unlocks after the previous one is solid.</p>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="lp-section">
+
+## Challenges
+
+<CardGrid>
+  <LinkCard
+		href="/kv-store/"
+		title="Key-Value Store"
+		description="Build a fault-tolerant distributed key-value store using Raft consensus."
+	/>
+</CardGrid>
+
+</div>
+
+<div class="lp-footer">
+  CC BY 4.0 · [github.com/clstr-io](https://github.com/clstr-io)
+</div>
+
+<style>{`
+  .lp-hero {
+    text-align: center;
+    padding: 5rem 1rem 4rem;
+    max-width: 44rem;
+    margin: 0 auto;
+  }
+
+  .lp-title {
+    font-size: clamp(2.2rem, 6vw, 3.75rem) !important;
+    line-height: 1.1 !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .lp-tagline {
+    color: var(--sl-color-gray-3);
+    font-size: var(--sl-text-lg);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    max-width: 36rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .lp-ctas {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .lp-demo {
+    max-width: 48rem;
+    margin: 0 auto 4rem;
+    padding: 0 1rem;
+  }
+
+  .lp-section {
+    max-width: 48rem;
+    margin: 0 auto 4rem;
+    padding: 0 1rem;
+  }
+
+  .lp-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .lp-step {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .lp-step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-accent);
+    padding-top: 0.2rem;
+    flex-shrink: 0;
+    width: 2rem;
+  }
+
+  .lp-step strong {
+    display: block;
+    color: var(--sl-color-white);
+    margin-bottom: 0.4rem;
+  }
+
+  .lp-step p {
+    color: var(--sl-color-gray-3);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .lp-footer {
+    text-align: center;
+    padding: 2rem 1rem 4rem;
+    color: var(--sl-color-gray-4);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: var(--sl-text-xs);
+  }
+
+  .lp-footer a {
+    color: var(--sl-color-gray-4);
+  }
+
+  .lp-footer a:hover {
+    color: var(--sl-color-gray-3);
+  }
+`}</style>

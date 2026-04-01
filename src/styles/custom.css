@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400&family=DM+Serif+Display&display=swap');
+
+:root,
+:root[data-theme='dark'],
+:root[data-theme='light'] {
+  --sl-color-accent-low: #1c2e04;
+  --sl-color-accent: #c8ef60;
+  --sl-color-accent-high: #dcf583;
+
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #f0f0f0;
+  --sl-color-gray-2: #e8e8e8;
+  --sl-color-gray-3: #b0b0b0;
+  --sl-color-gray-4: #666666;
+  --sl-color-gray-5: #2a2a2a;
+  --sl-color-gray-6: #141414;
+  --sl-color-black: #0d0d0d;
+
+  --sl-color-hairline: #1f1f1f;
+  --sl-color-hairline-shade: #0d0d0d;
+
+  --sl-color-bg-nav: #0d0d0d;
+  --sl-color-bg-sidebar: #0d0d0d;
+}
+
+:root {
+  --sl-font: 'DM Sans', sans-serif;
+  --sl-font-mono: 'IBM Plex Mono', monospace;
+}
+
+body {
+  font-weight: 300;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400;
+}
+
+.site-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  color: var(--sl-color-accent);
+}
+
+:not(pre) > code {
+  background-color: transparent !important;
+  border: none !important;
+  color: var(--sl-color-accent) !important;
+  padding: 0 !important;
+}
+
+nav a, .sidebar-pane {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.group-label {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+starlight-toc h2 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+}
+
+.content-panel + .content-panel {
+  border-top: none;
+}
+
+header.header {
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+
+.sidebar-pane {
+  border-right: 1px solid var(--sl-color-hairline);
+}
+
+.social-icons a {
+  color: var(--sl-color-white);
+}
+
+.social-icons a:hover {
+  color: var(--sl-color-white);
+}
+
+.social-icons::after {
+  display: none;
+}
+
+starlight-theme-select {
+  display: none;
+}
+
+.card {
+  padding: 1rem !important;
+}
+
+.card .title {
+  font-size: var(--sl-text-h5) !important;
+}
+
+.card .body {
+  font-size: var(--sl-text-sm) !important;
+}
+
+@media (max-width: 50rem) {
+  .expressive-code .copy {
+    display: none;
+  }
+}
+
+.sl-markdown-content pre,
+.expressive-code pre,
+.expressive-code figure {
+  border-radius: 2px !important;
+}
