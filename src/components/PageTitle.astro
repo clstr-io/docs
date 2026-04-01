@@ -1,0 +1,17 @@
+---
+const { entry } = Astro.locals.starlightRoute;
+if (entry.data.template === 'splash') return;
+---
+<h1 id="_top">{entry.data.title}</h1>
+
+<style>
+	@layer starlight.core {
+		h1 {
+			margin-top: 1rem;
+			font-size: var(--sl-text-h1);
+			line-height: var(--sl-line-height-headings);
+			font-weight: 600;
+			color: var(--sl-color-white);
+		}
+	}
+</style>

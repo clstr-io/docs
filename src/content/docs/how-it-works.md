@@ -1,0 +1,51 @@
+---
+title: How It Works
+description: An overview of the clstr.io CLI, testing system, and challenge workflow.
+---
+
+Reading about how systems work is one thing. Building them is another.
+
+clstr.io breaks down complex distributed systems into manageable stages you can actually implement. Build distributed systems from scratch: databases, caches, message queues, lock services, and more. Each challenge teaches different distributed systems patterns like consensus, replication, partitioning, and fault tolerance. Each challenge starts simple and adds complexity one stage at a time.
+
+You write real code that actually works. Tests verify your implementation handles the hard problems: network failures, crash recovery, concurrent access, etc. By the end, you understand these systems because you've built them yourself.
+
+## Challenges
+
+Each challenge breaks down a distributed system into manageable stages that can be built incrementally. For instance, the [distributed key-value store challenge](/kv-store/) starts with a simple in-memory store with a HTTP API and by the end, you have a sharded distributed key-value store.
+
+Each stage comes with tests that simulate real-world scenarios like network failures and crash recovery. The tests verify your system's behavior, not implementation details, so you're free to choose your own data structures, algorithms, and approaches. These are essentially end-to-end tests that check if your system actually works.
+
+Each stage explains what you need to implement and links out to good resources for learning more. Why reinvent the wheel when Kleppmann and others have already explained it better? 😅
+
+Ready to try it out? Here's how to set up the CLI and start your first challenge.
+
+## Installation
+
+See [this guide](/guides/cli/#installation) on how to install the CLI on your system.
+
+## Pick a Challenge
+
+Start with the [distributed key-value store challenge](/kv-store/); it's a great introduction to distributed systems concepts. Check the challenge's page for details on the first stage.
+
+### Scaffolding
+
+Run `clstr init kv-store` to create a new challenge directory with:
+
+- `run.sh` - Builds and runs your implementation
+- `README.md` - Challenge overview and requirements
+- `clstr.state` - Tracks your progress
+- `.gitignore` - Ignores `.clstr/` working directory (server files and logs)
+
+Update `run.sh` with the commands to build and run your implementation. You can use _any_ language - Go, Python, Rust, even Ponylang - as long as `run.sh` can start your program and pass through any command-line arguments from `clstr test`.
+
+## Implement & Test
+
+Write your implementation in any language to solve the challenge's first stage. When ready, run `clstr test` to verify your solution works correctly. The tests focus on behavior, not implementation details.
+
+## Advance Through Stages
+
+Pass the current stage, then run `clstr next` to unlock the next stage. Each stage builds on the previous one, gradually adding complexity.
+
+By the end of the challenge, you'll have a deep understanding of how these systems actually work because you built one yourself.
+
+Good luck! 🚀
