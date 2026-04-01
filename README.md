@@ -7,10 +7,9 @@ This repository contains the documentation, challenge definitions, and guides th
 ## Structure
 
 ```
-content/
-├── challenges/
-│   └── kv-store/          # KV store challenge stages
-├── guides/                # Getting started guides
+src/content/docs/
+├── kv-store/          # KV store challenge stages
+├── guides/            # Getting started guides
 └── ...
 ```
 
@@ -26,13 +25,13 @@ For major changes or new challenges, please open an issue first to discuss.
 
 ## Local Development
 
-This site is built with [Hugo](https://gohugo.io/). To run locally:
+This site is built with [Astro](https://astro.build/) and [Starlight](https://starlight.astro.build/). To run locally:
 
 ```console
 $ git clone https://github.com/clstr-io/docs.git
 $ cd docs
-$ git submodule update --init
-$ hugo server -D
+$ pnpm install
+$ pnpm dev
 ```
 
-Visit [http://localhost:1313](http://localhost:1313) to preview.
+Visit [http://localhost:4321](http://localhost:4321) to preview.
