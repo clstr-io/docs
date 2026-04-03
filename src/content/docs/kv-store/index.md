@@ -64,4 +64,4 @@ If you haven't already, read [this overview](/how-it-works/) on how it works and
 
 ### Implementations
 
-- [little-key-value](https://github.com/st3v3nmw/little-key-value) in Go by [@st3v3nmw](https://github.com/st3v3nmw)
+- [Go](https://github.com/clstr-io/kv-store-go)

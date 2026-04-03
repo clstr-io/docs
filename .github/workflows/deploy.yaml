@@ -3,6 +3,12 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - '.github/dependabot.yml'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'Makefile'
+      - 'README.md'
 
 permissions:
   contents: read

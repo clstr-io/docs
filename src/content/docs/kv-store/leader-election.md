@@ -61,6 +61,7 @@ State must survive crashes and restarts. A node that crashes and restarts should
 
 ```markdown
 POST /raft/request-vote
+
 Body:
   {
     "term": <int>,                # candidate's term
@@ -68,6 +69,7 @@ Body:
     "last-log-index": <int>,      # index of candidate's last log entry
     "last-log-term": <int>        # term of candidate's last log entry
   }
+
 Response:
   - 200 OK:
     {
@@ -84,6 +86,7 @@ In this stage with no log entries yet, set `last-log-index` and `last-log-term` 
 
 ```markdown
 POST /raft/append-entries
+
 Body:
   {
     "term": <int>,              # leader's term
@@ -93,6 +96,7 @@ Body:
     "entries": [],              # empty for heartbeats; will contain log entries later
     "leader-commit": <int>      # leader's commit-index
   }
+
 Response:
   - 200 OK:
     {
@@ -109,6 +113,7 @@ Get the node's current cluster state and role.
 
 ```markdown
 GET /cluster/info
+
 Response:
   - 200 OK:
     {
