@@ -3,7 +3,7 @@ title: Testing
 description: API reference for the attest testing framework used to write clstr challenge tests.
 ---
 
-The testing framework (`attest`) provides a fluent API for writing black-box tests against programs. Tests validate external behavior without accessing implementation internals.
+The testing framework (`attest`) provides a fluent API for writing black-box tests against programs running in Docker containers. Tests validate external behavior without accessing implementation internals.
 
 ## Quick Start
 
@@ -17,92 +17,168 @@ import (
 )
 
 func HTTPAPI() *Suite {
-    return New().
-        // 0
-        Setup(func(do *Do) {
-            do.Start("node")
-        }).
+    return New(WithCluster(1)).
 
         // 1
         Test("PUT stores data", func(do *Do) {
-            do.HTTP("node", "PUT", "/kv/key", "value").T().
+            do.PUT("n1", "/kv/key", "value").
                 Status(Is(200)).
-                Assert("Your server should accept PUT requests.\n" +
-                    "Ensure your HTTP handler processes PUT to /kv/{key}.")
+                Hint("Your server should accept PUT requests.\n" +
+                    "Ensure your HTTP handler processes PUT to /kv/{key}.").
+                Check()
         }).
 
         // 2
         Test("GET retrieves data", func(do *Do) {
-            do.HTTP("node", "GET", "/kv/key").T().
+            do.GET("n1", "/kv/key").
                 Status(Is(200)).
                 Body(Is("value")).
-                Assert("Your server should return stored values.")
+                Hint("Your server should return stored values.").
+                Check()
         })
 }
 ```
 
 Tests run sequentially. State persists between tests so data written in test 1 is available in test 2. First failure stops execution.
 
-## HTTP Assertions
+## HTTP Requests
 
-Make HTTP requests and validate responses:
+Make HTTP requests using the method-specific helpers:
 
 ```go
-// Basic request
-do.HTTP("node", "GET", "/kv/key").T().
-    Status(Is(200)).
-    Body(Is("value")).
-    Assert("Your server should return stored values.")
-
-// With body
-do.HTTP("node", "PUT", "/kv/key", "value").T().
-    Status(Is(200)).
-    Assert("Your server should accept PUT requests.")
-
-// With custom headers
-do.HTTP("node", "POST", "/api", `{"key":"value"}`, H{"Content-Type": "application/json"}).T().
-    Status(Is(201)).
-    Assert(...)
-
-// Status only
-do.HTTP("node", "DELETE", "/kv/key").T().
-    Status(Is(200)).
-    Assert("Your server should accept DELETE requests.")
-
-// JSON fields
-do.HTTP("node", "GET", "/cluster/info").T().
-    Status(Is(200)).
-    JSON("role", Is("follower")).
-    JSON("term", Is("1")).
-    Assert("Should return cluster info")
-
-do.HTTP("node", "GET", "/log").T().
-    Status(Is(200)).
-    JSON("entries.0.term", Is("1")).
-    JSON("entries.1.index", Is("1")).
-    Assert("Should return log entries")
-
-do.HTTP("node", "GET", "/cluster/info").T().
-    Status(Is(200)).
-    JSON("leader", IsNull[string]()).
-    Assert("Leader should be null when no leader elected")
+do.GET(name, path, args...)
+do.PUT(name, path, args...)
+do.POST(name, path, args...)
+do.DELETE(name, path, args...)
+do.PATCH(name, path, args...)
 ```
 
-## CLI Assertions
-
-Execute CLI commands and validate output:
+`name` is the node name (e.g. `"n1"`). Optional `args` are a body string and an `H` header map:
 
 ```go
-// Check exit code and output
-do.Exec("--help").T().
-    ExitCode(Is(0)).
-    Output(Contains("Usage:")).
-    Assert("Your command should show usage information.")
+// No body
+do.GET("n1", "/kv/key")
 
-// Check exit code only
-do.Exec("invalid", "args").T().
-    ExitCode(Is(1)).
-    Assert("Your command should reject invalid arguments.")
+// With body
+do.PUT("n1", "/kv/key", "value")
+
+// With body and headers
+do.POST("n1", "/api", `{"key":"value"}`, H{"Content-Type": "application/json"})
+```
+
+Each call returns an `*Assertion`. Chain modifiers onto it and call `.Check()` to execute:
+
+```go
+do.PUT("n1", "/kv/key", "value").
+    Status(Is(200)).
+    Hint("Your server should accept PUT requests.").
+    Check()
+```
+
+## Assertion Modifiers
+
+### `.Status(checkers...)`
+
+Validates the HTTP response status code:
+
+```go
+do.GET("n1", "/kv/missing").
+    Status(Is(404)).
+    Hint("Return 404 for missing keys.").
+    Check()
+```
+
+### `.Body(checkers...)`
+
+Validates the HTTP response body:
+
+```go
+do.GET("n1", "/kv/missing").
+    Status(Is(404)).
+    Body(Is("key not found\n")).
+    Hint("Return 'key not found\\n' for missing keys.").
+    Check()
+```
+
+### `.JSON(path, checkers...)`
+
+Validates a JSON field at the given [gjson](https://github.com/tidwall/gjson) path:
+
+```go
+do.GET("n1", "/cluster/info").
+    Status(Is(200)).
+    JSON("role", Is("leader")).
+    JSON("term", Is("1")).
+    Hint("Should return cluster info.").
+    Check()
+
+// Nested fields
+do.GET("n1", "/log").
+    JSON("entries.0.term", Is("1")).
+    JSON("entries.1.index", Is("2")).
+    Check()
+
+// Null check
+do.GET("n1", "/cluster/info").
+    JSON("leader", IsNull[string]()).
+    Hint("Leader should be null when no leader elected.").
+    Check()
+```
+
+### `.Hint(text)`
+
+Sets the help text shown when the assertion fails. Write it as a concrete next step:
+
+```go
+do.PUT("n1", "/kv/", "value").
+    Status(Is(400)).
+    Body(Is("key cannot be empty\n")).
+    Hint("Your server should reject empty keys.\n" +
+        "Add validation to return 400 Bad Request for empty keys.").
+    Check()
+```
+
+### `.Check()`
+
+Executes the assertion. Panics on failure, which is caught by the test runner and reported as a test failure.
+
+## Timing
+
+By default assertions execute once immediately. Use `.Eventually()` or `.Consistently()` to change this.
+
+### `.Eventually(timeout ...time.Duration)`
+
+Retries until the assertion passes or the timeout expires (default 5s):
+
+```go
+// Wait for replica to sync
+do.GET("n2", "/kv/key").
+    Eventually().
+    Status(Is(200)).
+    Body(Is("value")).
+    Hint("Replica should eventually receive replicated data.").
+    Check()
+
+// Custom timeout
+do.GET("n2", "/kv/key").
+    Eventually(10 * time.Second).
+    Status(Is(200)).
+    Body(Is("value")).
+    Hint("Replica should sync within 10 seconds.").
+    Check()
+```
+
+### `.Consistently(timeout ...time.Duration)`
+
+Verifies the assertion stays true for the entire duration (default 5s):
+
+```go
+// Verify no leader is elected in minority partition
+do.GET("n1", "/cluster/info").
+    Consistently(5 * time.Second).
+    JSON("leader", IsNull[string]()).
+    Hint("Minority partition should not elect a leader.").
+    Check()
 ```
 
 ## Checkers
@@ -112,29 +188,24 @@ do.Exec("invalid", "args").T().
 Exact equality:
 
 ```go
-.Status(Is(200))
-.Body(Is("key not found\n"))
-.ExitCode(Is(0))
+Status(Is(200))
+Body(Is("key not found\n"))
 ```
 
 ### `IsNull[T]()`
 
-Checks if a value is null:
+Checks that a JSON field is null. Requires a type parameter:
 
 ```go
-// Check for null JSON field
-.JSON("leader", IsNull[string]())
+JSON("leader", IsNull[string]())
 ```
-
-Requires a type parameter to specify the expected field type.
 
 ### `Contains(substring)`
 
-String contains:
+Checks that a string contains a substring:
 
 ```go
-.Body(Contains("error"))
-.Output(Contains("Usage:"))
+Body(Contains("error"))
 ```
 
 ### `Matches(pattern)`
@@ -142,37 +213,24 @@ String contains:
 Regex matching:
 
 ```go
-.Body(Matches(`^[0-9]+$`))
-.Output(Matches(`version \d+\.\d+\.\d+`))
+Body(Matches(`^[0-9]+$`))
 ```
 
 ### `HasLen[T](length)`
 
-Validates that a value has a specific length. Works on arrays, slices, maps, channels, and strings:
+Validates that a value has a specific length. Works on strings, arrays, slices, maps, and channels:
 
 ```go
-// String body length
-.Body(HasLen[string](5))
-
-// JSON array length
-.JSON("items", HasLen[string](3))
-
-// JSON string field length
-.JSON("name", HasLen[string](5))
-
-// Empty arrays
-.JSON("items", HasLen[string](0))
+JSON("entries", HasLen[string](3))
+JSON("peers", HasLen[string](4))
 ```
-
-Requires a type parameter to specify the field type being checked.
 
 ### `OneOf(values...)`
 
-Match any of several values:
+Accepts any of the provided values. Useful when order is non-deterministic:
 
 ```go
-// Useful for concurrent operations where order is non-deterministic
-.Body(OneOf("value1", "value2", "value3"))
+Body(OneOf("value1", "value2", "value3"))
 ```
 
 ### `Not(checker)`
@@ -180,190 +238,141 @@ Match any of several values:
 Negates another checker:
 
 ```go
-.Status(Not(Is(500)))
-.Body(Not(Contains("panic")))
+Status(Not(Is(500)))
+Body(Not(Contains("panic")))
 ```
 
-### Multiple Checkers
+### Multiple checkers
 
-Chain multiple checkers for the same field:
+Pass multiple checkers to any modifier — all must pass:
 
 ```go
-// Multiple status checks
-.Status(Is(200), Not(Is(404)), Not(Is(500)))
-
-// Multiple body checks
-.Body(Contains("Hello"), Contains("World"), Not(Contains("Goodbye")))
-
-// Multiple JSON field checks
-JSON("role", Is("leader"), Not(Is("follower")), Not(Is("candidate")))
+Status(Is(200), Not(Is(404)))
+Body(Contains("Hello"), Not(Contains("error")))
 ```
 
-All checkers for a field must pass. If any checker fails, the assertion fails.
+## Node Management
 
-## Timing
+### `do.Start(name)`
 
-### `Eventually()`
-
-Retry until condition becomes true or timeout (default 5s):
+Starts a previously stopped or killed node:
 
 ```go
-// Wait for replica to sync
-do.HTTP("replica", "GET", "/kv/key").
-    Eventually().T().
-    Status(Is(200)).
-    Body(Is("value")).
-    Assert("Replica should eventually receive replicated data.")
-
-// Custom timeout
-do.HTTP("replica", "GET", "/kv/key").
-    Eventually().Within(10 * time.Second).T().
-    Status(Is(200)).
-    Body(Is("value")).
-    Assert("Replica should sync within 10 seconds.")
+do.Start("n1")
 ```
 
-### `Consistently()`
+Nodes are started automatically at the beginning of a suite via `WithCluster`. Use `Start` only when you need to restart a node that was stopped or killed during a test.
 
-Verify condition stays true for duration (default 5s):
+### `do.Stop(name)`
+
+Sends SIGTERM and waits for graceful exit:
 
 ```go
-// Verify value remains stable
-do.HTTP("node", "GET", "/kv/key").
-    Consistently().T().
-    Status(Is(200)).
-    Body(Is("value")).
-    Assert("Value should remain stable.")
-
-// Custom duration
-do.HTTP("node", "GET", "/kv/key").
-    Consistently().For(2 * time.Second).T().
-    Status(Is(200)).
-    Body(Is("value")).
-    Assert("Value should remain stable for 2 seconds.")
+do.Stop("n1")
 ```
 
-### Default (Immediate)
+### `do.Kill(name)`
 
-Without `Eventually()` or `Consistently()`, checks execute once immediately:
+Sends SIGKILL immediately:
 
 ```go
-do.HTTP("node", "GET", "/kv/key").T().
-    Status(Is(200)).
-    Assert("Your server should return the value immediately.")
+do.Kill("n1")
 ```
 
-## Service Management
+### `do.Restart(name, sig...)`
 
-### `Start(name, args...)`
-
-Start a service with auto-assigned port:
-
-```go
-do.Start("node")
-do.Start("replica", "--seed=123")
-```
-
-Port is auto-assigned by the OS. Services receive `--port` and `--working-dir` flags automatically. Each test run gets an isolated working directory like `2024-01-15 14:30:22`.
-
-### `Stop(name)`
-
-Graceful shutdown with SIGTERM:
-
-```go
-do.Stop("node")
-```
-
-Sends SIGTERM and waits for graceful exit. If process doesn't exit within timeout, sends SIGKILL.
-
-### `Kill(name)`
-
-Immediate termination with SIGKILL:
-
-```go
-do.Kill("node")
-```
-
-### `Restart(name, sig...)`
-
-Restart a service:
+Stops then starts a node. The optional signal controls how the node is stopped:
 
 ```go
 // Graceful restart (SIGTERM)
-do.Restart("node")
+do.Restart("n1")
 
 // Crash simulation (SIGKILL)
-do.Restart("node", syscall.SIGKILL)
+do.Restart("n1", syscall.SIGKILL)
 ```
 
-The optional signal parameter controls how the process is stopped before restart. SIGKILL simulates crashes with no cleanup, SIGTERM allows graceful shutdown.
+### `do.Partition(groups...)`
+
+Isolate groups of nodes from each other:
+
+```go
+// Split a 5-node cluster into minority and majority partitions
+do.Partition([]string{"n1", "n2"}, []string{"n3", "n4", "n5"})
+```
+
+### `do.Heal()`
+
+Restores full connectivity on every node:
+
+```go
+do.Heal()
+```
 
 ## Concurrency
 
-### `Concurrently(funcs...)`
+### `do.Concurrently(n, fn)`
 
-Run operations in parallel:
-
-```go
-do.Concurrently(
-    func() {
-        do.HTTP("node", "PUT", "/kv/key1", "value1").T().
-            Status(Is(200)).
-            Assert(...)
-    },
-    func() {
-        do.HTTP("node", "PUT", "/kv/key2", "value2").T().
-            Status(Is(200)).
-            Assert(...)
-    },
-)
-
-// Verify both succeeded
-do.HTTP("node", "GET", "/kv/key1").T().
-    Status(Is(200)).
-    Body(Is("value1")).
-    Assert(...)
-do.HTTP("node", "GET", "/kv/key2").T().
-    Status(Is(200)).
-    Body(Is("value2")).
-    Assert(...)
-```
-
-Waits for all functions to complete. If any panic, the first panic is re-raised after all complete.
-
-## Writing Good Assertions
-
-Assertion messages appear when tests fail. They should help developers fix the problem.
-
-Good assertion messages describe expected behavior, provide concrete next steps, and reference relevant concepts:
+Runs `fn` `n` times in parallel, passing each invocation a 1-based index:
 
 ```go
-Assert("Your server should reject empty keys.\n" +
-    "Add validation to return 400 Bad Request for empty keys.")
-
-Assert("Your server should preserve data across crashes.\n" +
-    "Implement a Write-Ahead Log (WAL) that records operations before applying them.\n" +
-    "Ensure writes are durably stored before acknowledging to the client.")
+do.Concurrently(100, func(i int) {
+    do.PUT("n1", fmt.Sprintf("/kv/key%d", i), fmt.Sprintf("value%d", i)).
+        Status(Is(200)).
+        Hint("Your server should handle concurrent PUT requests.").
+        Check()
+})
 ```
 
-Focus on requirements rather than implementation details. Say "Ensure writes are durably stored before acknowledging" instead of "You must call fsync".
+Waits for all goroutines to complete. If any panic, the first panic is re-raised.
 
-Avoid:
+## Suite Configuration
 
-- Generic messages: "Fix your code"
-- Vague messages: "This is wrong"
-- Past tense: "Your server accepted an empty key when it should reject it"
-- Unnecessary adverbs: "Your server should handle requests correctly"
+### `New(opts...)`
 
-Example error output:
+Creates a new test suite. Options configure the cluster and timeouts:
 
-```console
-PUT /kv/ "value"
-  Expected response: "key cannot be empty\n"
-  Actual response: ""
+```go
+// Single-node suite
+return New(WithCluster(1)).Test(...)
 
-  Your server should reject empty keys.
-  Add validation to return 400 Bad Request for empty keys.
+// Five-node cluster
+return New(WithCluster(5)).Test(...)
+```
+
+### `WithCluster(n)`
+
+Declares an n-node cluster named `n1`, `n2`, ..., `nN`. Nodes are started before any tests run and stopped after.
+
+### `WithNodeStartTimeout(d)`
+
+How long to wait for a node to accept connections after starting (default 10s):
+
+```go
+New(WithCluster(1), WithNodeStartTimeout(30*time.Second))
+```
+
+### `WithNodeShutdownTimeout(d)`
+
+How long to wait for a node to exit after SIGTERM before sending SIGKILL (default 5s):
+
+```go
+New(WithCluster(1), WithNodeShutdownTimeout(15*time.Second))
+```
+
+### `WithAssertTimeout(d)`
+
+Default timeout for `Eventually` and `Consistently` (default 5s):
+
+```go
+New(WithCluster(1), WithAssertTimeout(10*time.Second))
+```
+
+### `WithRequestTimeout(d)`
+
+HTTP client timeout per request (default 5s):
+
+```go
+New(WithCluster(1), WithRequestTimeout(2*time.Second))
 ```
 
 ## Creating a Challenge
@@ -391,30 +400,28 @@ import (
 )
 
 func HTTPAPI() *Suite {
-    return New().
-        // 0
-        Setup(func(do *Do) {
-            do.Start("node")
-        }).
+    return New(WithCluster(1)).
 
         // 1
         Test("PUT Basic Operations", func(do *Do) {
-            do.HTTP("node", "PUT", "/kv/key", "value").T().
+            do.PUT("n1", "/kv/key", "value").
                 Status(Is(200)).
-                Assert("Your server should accept PUT requests.")
+                Hint("Your server should accept PUT requests.").
+                Check()
         }).
 
         // 2
         Test("GET Basic Operations", func(do *Do) {
-            do.HTTP("node", "GET", "/kv/key").T().
+            do.GET("n1", "/kv/key").
                 Status(Is(200)).
                 Body(Is("value")).
-                Assert("Your server should return stored values.")
+                Hint("Your server should return stored values.").
+                Check()
         })
 }
 ```
 
-Import `attest` with `.` for cleaner syntax. Number tests with comments (0, 1, 2...) to visually separate tests so that they're not crowded.
+Import `attest` with `.` for cleaner syntax. Number tests with comments to visually separate them.
 
 ### Challenge Registration
 
@@ -428,15 +435,12 @@ import "github.com/clstr-io/clstr/internal/registry"
 func init() {
     challenge := &registry.Challenge{
         Name: "Distributed Key-Value Store",
-        Summary: `Build a distributed key-value store from scratch.
-You'll start with a simple HTTP API and progressively add persistence,
-crash recovery, clustering, replication, and consensus.`,
+        Summary: `Build a distributed key-value store from scratch.`,
     }
 
     challenge.AddStage("http-api", "Store and Retrieve Data", HTTPAPI)
     challenge.AddStage("persistence", "Data Survives SIGTERM", Persistence)
     challenge.AddStage("crash-recovery", "Data Survives SIGKILL", CrashRecovery)
-    challenge.AddStage("leader-election", "Cluster Elects and Maintains Leader", LeaderElection)
 
     registry.RegisterChallenge("kv-store", challenge)
 }

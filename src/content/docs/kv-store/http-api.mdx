@@ -110,13 +110,7 @@ Values are stored as UTF-8 encoded text and can contain:
 
 ## Testing
 
-Your server must accept `--port` and `--working-dir` flags:
-
-```console
-$ ./run.sh --port 8001 --working-dir .clstr/2025-12-26 21:03:57
-```
-
-For this stage, you only need `--port` to start your HTTP server. The `--working-dir` parameter will become important in the next stage when you add persistence. For now, it's just where your server's logs end up (`node.log`).
+Your server must listen on port `8080`. The test harness builds your `Dockerfile` and starts a container exposing that port.
 
 You can test your implementation using the `clstr` command:
 
@@ -142,7 +136,7 @@ Run 'clstr next' to advance to the next stage.
 
 ### Debugging
 
-Your server's output (`stdout`/`stderr`) is captured in `node.log` inside the working directory. Add your own logging to help debug issues.
+Your server's output (`stdout`/`stderr`) is available via `docker logs`. Add your own logging to help debug issues.
 
 When tests fail, `clstr` will show you exactly what went wrong:
 

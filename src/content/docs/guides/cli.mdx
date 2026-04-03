@@ -52,12 +52,10 @@ Start with: clstr init <challenge-name>
 ## Quick Start
 
 ```console
-$ clstr init kv-store    # Create challenge in current directory
-$ clstr test             # Test your implementation
-$ clstr next             # Advance to the next stage
+$ clstr init kv-store --language go    # Create challenge in current directory
+$ clstr test                           # Test your implementation
+$ clstr next                           # Advance to the next stage
 ```
-
-Edit `run.sh` to launch your implementation, then run `clstr test` to get feedback.
 
 :::note
 Commands support short aliases for faster typing:
@@ -77,38 +75,26 @@ $ clstr init <challenge> [path]
 ```
 
 Creates a new challenge directory with:
-- `run.sh` - Script that builds and runs your implementation
+- `Dockerfile` - Builds and runs your server in a container
 - `README.md` - Challenge overview and requirements
 - `clstr.state` - Tracks your progress
 - `.gitignore` - Ignores `.clstr/` working directory (server files and logs)
 
+**Flags:**
+- `--language`, `--lang`, `-l` - Language to generate a `Dockerfile` for (e.g. `go`, `python`, `rust`)
+
 **Examples:**
 
 ```console
-$ clstr init kv-store           # Create in current directory
-$ clstr init kv-store my-kvs    # Create in ./my-kvs
+$ clstr init kv-store --language go          # Create in current directory
+$ clstr init kv-store my-kvs --language go   # Create in ./my-kvs
+$ clstr init kv-store --language python      # Create with a Python Dockerfile
+$ clstr init kv-store my-kvs --language rust # Create in ./my-kvs with a Rust Dockerfile
 ```
 
 ### 2. Implement & Test
 
-Edit `run.sh` to start your implementation.
-The script must launch your server and pass through any arguments from `clstr`:
-
-```bash
-#!/bin/bash -e
-
-# Go
-exec go run ./cmd/server "$@"
-
-# Python
-# exec python main.py "$@"
-
-# Rust
-# cargo build --release && exec ./target/release/kvstore "$@"
-
-# Node.js
-# exec node server.js "$@"
-```
+Update the `Dockerfile` to build and start your server. You can use any language as long as the container starts your program.
 
 Then test:
 
@@ -158,6 +144,9 @@ Run `clstr --help` to see all available commands, or `clstr <command> --help` fo
 **Usage:** `clstr init <challenge> [path]`
 
 Creates a new challenge in the specified directory (or current directory if not specified).
+
+**Flags:**
+- `--language`, `--lang`, `-l` - Generate a `Dockerfile` for the specified language (e.g. `go`, `python`, `rust`)
 
 ### clstr test
 

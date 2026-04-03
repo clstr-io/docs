@@ -7,13 +7,13 @@ Implement [Raft](https://raft.github.io/raft.pdf) leader election to form a stat
 
 ## Cluster Formation
 
-Start nodes with the --peers flag specifying all other cluster members:
+The test harness starts each node as a Docker container on a shared network and passes the other nodes' addresses via the `--peers` flag:
 
-```console
-$ ./run.sh --port 8001 --working-dir .clstr/2025-12-26 21:03:57 --peers=:8002,:8003,:8004,:8005
+```
+--peers=10.0.42.3:8080,10.0.42.4:8080,10.0.42.5:8080,10.0.42.6:8080
 ```
 
-The cluster is static; membership doesn't change in this stage.
+Each node listens on port `8080`. The cluster is static; membership doesn't change in this stage.
 
 ## Leader Election
 
@@ -42,7 +42,7 @@ Followers respond with `307 Temporary Redirect` and `Location` header pointing t
 
 ```
 HTTP/1.1 307 Temporary Redirect
-Location: http://127.0.0.1:8001/kv/mykey
+Location: http://10.0.42.2:8080/kv/mykey
 ```
 
 If no leader is known, return `503 Service Unavailable`.
@@ -65,7 +65,7 @@ POST /raft/request-vote
 Body:
   {
     "term": <int>,                # candidate's term
-    "candidate-id": ":<port>",    # candidate requesting vote
+    "candidate-id": "<ip>:<port>",    # candidate requesting vote
     "last-log-index": <int>,      # index of candidate's last log entry
     "last-log-term": <int>        # term of candidate's last log entry
   }
@@ -90,7 +90,7 @@ POST /raft/append-entries
 Body:
   {
     "term": <int>,              # leader's term
-    "leader-id": ":<port>",     # so follower can redirect clients
+    "leader-id": "<ip>:<port>",     # so follower can redirect clients
     "prev-log-index": <int>,    # index of log entry immediately preceding new ones
     "prev-log-term": <int>,     # term of prev-log-index entry
     "entries": [],              # empty for heartbeats; will contain log entries later
@@ -119,10 +119,10 @@ Response:
     {
       "role": "leader|candidate|follower",
       "term": <int>,
-      "leader": ":<port>",         # null if no known leader
-      "voted-for": ":<port>",      # null if haven't voted this term
-                                   # own address if voted for self
-      "peers": [":<port>", ...]    # all cluster members, sorted lexicographically
+      "leader": "<ip>:<port>",         # null if no known leader
+      "voted-for": "<ip>:<port>",      # null if haven't voted this term
+                                       # own address if voted for self
+      "peers": ["<ip>:<port>", ...]    # all cluster members, sorted lexicographically
     }
 ```
 
@@ -131,13 +131,7 @@ The `leader` field is `null` when no leader is known (startup, during election, 
 
 ## Testing
 
-Your server will be started as a 5-node cluster:
-
-```console
-$ ./run.sh --port 8001 --working-dir .clstr/2025-12-26 21:03:57 --peers=:8001,:8002,:8003,:8004,:8005
-```
-
-The tests will verify leader election behavior:
+Your server will be started as a 5-node cluster, with the other four nodes' addresses passed via `--peers`. The tests will verify leader election behavior:
 
 ```console
 $ clstr test leader-election
