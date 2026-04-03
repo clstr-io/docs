@@ -71,11 +71,7 @@ Organize these in the working directory however makes sense - separate files, su
 
 ## Testing
 
-Your server will be started with the working directory:
-
-```console
-$ ./run.sh --port 8001 --working-dir ".clstr/2025-12-26 21:03:57"
-```
+The test harness mounts a persistent volume at `/app/data` and passes `--data-dir=/app/data`, same as the previous stage. Your server should store and load data from the path given by `--data-dir`.
 
 Your server will be tested with unexpected crashes:
 

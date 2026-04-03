@@ -29,14 +29,14 @@ Start with the [distributed key-value store challenge](/kv-store/); it's a great
 
 ### Scaffolding
 
-Run `clstr init kv-store` to create a new challenge directory with:
+Run `clstr init kv-store --language go` to create a new challenge directory with:
 
-- `run.sh` - Builds and runs your implementation
+- `Dockerfile` - Builds and runs your server in a container
 - `README.md` - Challenge overview and requirements
 - `clstr.state` - Tracks your progress
 - `.gitignore` - Ignores `.clstr/` working directory (server files and logs)
 
-Update `run.sh` with the commands to build and run your implementation. You can use _any_ language - Go, Python, Rust, even Ponylang - as long as `run.sh` can start your program and pass through any command-line arguments from `clstr test`.
+Update the `Dockerfile` to build and run your implementation. You can use any language - Go, Python, Rust, even Ponylang.
 
 ## Implement & Test
 
