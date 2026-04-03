@@ -9,7 +9,7 @@ In this stage, you'll build an in-memory key-value store and expose it over a RE
 
 You'll implement the following endpoints:
 
-### PUT /kv/{key}
+### PUT /kv/\{key\}
 
 Add or update a key-value pair in the store.
 
@@ -27,7 +27,7 @@ Response:
   - 400 Bad Request: Return "key cannot be empty\n" or "value cannot be empty\n"
 ```
 
-### GET /kv/{key}
+### GET /kv/\{key\}
 
 Retrieve the value associated with the given key.
 
@@ -42,7 +42,7 @@ Response:
   - 404 Not Found: Return "key not found\n"
 ```
 
-### DELETE /kv/{key}
+### DELETE /kv/\{key\}
 
 Remove a key-value pair from the store.
 
