@@ -11,8 +11,8 @@ import { Card, CardGrid, LinkButton, LinkCard } from '@astrojs/starlight/compone
   <h1 class="lp-title">Distributed systems,<br />from scratch.</h1>
   <p class="lp-tagline">Build real distributed systems in any language. Each challenge breaks a complex system into stages, verified by tests that simulate network failures, crashes, and real-world conditions.</p>
   <div class="lp-ctas">
-    <LinkButton href="/kv-store/">Get started</LinkButton>
-    <LinkButton href="/how-it-works/" variant="minimal">How it works</LinkButton>
+    <LinkButton href="/kv-store/" icon="right-arrow">Get started</LinkButton>
+    <LinkButton href="/how-it-works/" variant="secondary">How it works</LinkButton>
   </div>
 </div>
 
@@ -94,6 +94,21 @@ Run 'clstr next' to advance to the next stage.
 </div>
 
 <style>{`
+  /* ── Layout ──────────────────────────────────────────────────────────────── */
+
+  .lp-demo,
+  .lp-section {
+    max-width: 48rem;
+    margin: 0 auto 4rem;
+    padding: 0 1rem;
+  }
+
+  footer {
+    display: none;
+  }
+
+  /* ── Hero ────────────────────────────────────────────────────────────────── */
+
   .lp-hero {
     text-align: center;
     padding: 5rem 1rem 4rem;
@@ -124,17 +139,7 @@ Run 'clstr next' to advance to the next stage.
     flex-wrap: wrap;
   }
 
-  .lp-demo {
-    max-width: 48rem;
-    margin: 0 auto 4rem;
-    padding: 0 1rem;
-  }
-
-  .lp-section {
-    max-width: 48rem;
-    margin: 0 auto 4rem;
-    padding: 0 1rem;
-  }
+  /* ── Steps ───────────────────────────────────────────────────────────────── */
 
   .lp-steps {
     display: flex;
@@ -170,6 +175,20 @@ Run 'clstr next' to advance to the next stage.
     line-height: 1.6;
   }
 
+  /* ── Challenges ──────────────────────────────────────────────────────────── */
+
+  .sl-link-card:hover {
+    border-color: var(--sl-color-accent) !important;
+  }
+
+  .sl-link-card:hover .title,
+  .sl-link-card:hover .description,
+  .sl-link-card:hover .icon {
+    color: var(--sl-color-accent) !important;
+  }
+
+  /* ── Footer ──────────────────────────────────────────────────────────────── */
+
   .lp-footer {
     text-align: center;
     padding: 2rem 1rem 1rem;
@@ -184,9 +203,5 @@ Run 'clstr next' to advance to the next stage.
 
   .lp-footer a:hover {
     color: var(--sl-color-gray-3);
-  }
-
-  footer {
-    display: none;
   }
 `}</style>

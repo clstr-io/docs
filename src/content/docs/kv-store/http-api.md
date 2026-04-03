@@ -15,9 +15,13 @@ Add or update a key-value pair in the store.
 
 ```markdown
 PUT /kv/{key}
+
 Parameters:
   - key (path, required): The key to store (cannot be empty)
-Body: Value to store as plain text (cannot be empty)
+
+Body:
+  Value to store as plain text (cannot be empty)
+
 Response:
   - 200 OK: Key-value pair added or updated successfully
   - 400 Bad Request: Return "key cannot be empty\n" or "value cannot be empty\n"
@@ -29,8 +33,10 @@ Retrieve the value associated with the given key.
 
 ```markdown
 GET /kv/{key}
+
 Parameters:
   - key (path, required): The key to retrieve
+
 Response:
   - 200 OK: Return the stored value
   - 404 Not Found: Return "key not found\n"
@@ -42,8 +48,10 @@ Remove a key-value pair from the store.
 
 ```markdown
 DELETE /kv/{key}
+
 Parameters:
   - key (path, required): The key to delete
+
 Response:
   - 200 OK: Key deleted successfully (or key didn't exist)
 ```
@@ -54,6 +62,7 @@ Remove all key-value pairs from the store.
 
 ```markdown
 DELETE /clear
+
 Response:
   - 200 OK: All keys cleared successfully
 ```

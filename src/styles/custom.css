@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400&family=DM+Serif+Display&display=swap');
 
+/* ── Design tokens ───────────────────────────────────────────────────────── */
+
 :root,
 :root[data-theme='dark'],
 :root[data-theme='light'] {
@@ -28,6 +30,8 @@
   --sl-font-mono: 'IBM Plex Mono', monospace;
 }
 
+/* ── Typography ──────────────────────────────────────────────────────────── */
+
 body {
   font-weight: 300;
 }
@@ -41,6 +45,24 @@ h5 {
   font-weight: 400;
 }
 
+nav a,
+.sidebar-pane,
+.group-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+}
+
+starlight-toc h2 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+header.header {
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+
 .site-title {
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 500;
@@ -49,44 +71,7 @@ h5 {
   color: var(--sl-color-accent);
 }
 
-:not(pre) > code {
-  background-color: transparent !important;
-  border: none !important;
-  color: var(--sl-color-accent) !important;
-  padding: 0 !important;
-}
-
-nav a, .sidebar-pane {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.8rem;
-}
-
-.group-label {
-  font-family: 'IBM Plex Mono', monospace;
-}
-
-starlight-toc h2 {
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: 500;
-}
-
-.content-panel + .content-panel {
-  border-top: none;
-}
-
-header.header {
-  border-bottom: 1px solid var(--sl-color-hairline);
-}
-
-.sidebar-pane {
-  border-right: 1px solid var(--sl-color-hairline);
-}
-
 .social-icons a {
-  color: var(--sl-color-white);
-}
-
-.social-icons a:hover {
   color: var(--sl-color-white);
 }
 
@@ -97,6 +82,53 @@ header.header {
 starlight-theme-select {
   display: none;
 }
+
+/* ── Sidebar ─────────────────────────────────────────────────────────────── */
+
+.sidebar-pane {
+  border-right: 1px solid var(--sl-color-hairline);
+}
+
+/* ── Hover accents ───────────────────────────────────────────────────────── */
+
+.social-icons a:hover,
+.sidebar-pane a:hover:not([aria-current='page']),
+starlight-toc a:hover,
+.sl-markdown-content a:hover:not(.sl-link-button.primary) {
+  color: var(--sl-color-accent);
+}
+
+a[rel="prev"]:hover,
+a[rel="next"]:hover {
+  color: var(--sl-color-accent);
+  border-color: var(--sl-color-accent);
+}
+
+a[rel="prev"]:hover .link-title,
+a[rel="next"]:hover .link-title {
+  color: var(--sl-color-accent);
+}
+
+/* ── Content ─────────────────────────────────────────────────────────────── */
+
+.content-panel + .content-panel {
+  border-top: none;
+}
+
+:not(pre) > code {
+  background-color: transparent !important;
+  border: none !important;
+  color: var(--sl-color-accent) !important;
+  padding: 0 !important;
+}
+
+.sl-markdown-content pre,
+.expressive-code pre,
+.expressive-code figure {
+  border-radius: 2px !important;
+}
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
 
 .card {
   padding: 1rem !important;
@@ -110,14 +142,10 @@ starlight-theme-select {
   font-size: var(--sl-text-sm) !important;
 }
 
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
 @media (max-width: 50rem) {
   .expressive-code .copy {
     display: none;
   }
-}
-
-.sl-markdown-content pre,
-.expressive-code pre,
-.expressive-code figure {
-  border-radius: 2px !important;
 }

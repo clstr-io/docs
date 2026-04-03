@@ -65,7 +65,12 @@ export default defineConfig({
 			components: {
 				PageTitle: './src/components/PageTitle.astro',
 			},
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/clstr-io' }],
+			social: [
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/clstr-io' },
+				{ icon: 'twitter', label: 'Twitter', href: 'https://x.com/clstrio' },
+				{ icon: 'blueSky', label: 'Bluesky', href: 'https://bsky.app/profile/stephenmwangi.com' },
+				{ icon: 'comment-alt', label: 'Forum', href: 'https://github.com/orgs/clstr-io/discussions' },
+			],
 			customCss: ['./src/styles/custom.css'],
 			expressiveCode: {
 				themes: [clstrDark],
@@ -89,13 +94,6 @@ export default defineConfig({
 			sidebar: [
 				{ label: 'How It Works', slug: 'how-it-works' },
 				{
-					label: 'Guides',
-					items: [
-						{ label: 'CLI', slug: 'guides/cli' },
-						{ label: 'CI/CD', slug: 'guides/ci-cd' },
-					],
-				},
-				{
 					label: 'Key-Value Store',
 					collapsed: true,
 					items: [
@@ -108,6 +106,13 @@ export default defineConfig({
 						{ label: 'Membership Changes', slug: 'kv-store/membership-changes' },
 						{ label: 'Fault Tolerance', slug: 'kv-store/fault-tolerance' },
 						{ label: 'Log Compaction', slug: 'kv-store/log-compaction' },
+					],
+				},
+				{
+					label: 'Guides',
+					items: [
+						{ label: 'CLI', slug: 'guides/cli' },
+						{ label: 'CI/CD', slug: 'guides/ci-cd' },
 					],
 				},
 				{
