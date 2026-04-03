@@ -345,7 +345,7 @@ Declares an n-node cluster named `n1`, `n2`, ..., `nN`. Nodes are started before
 
 ### `WithNodeStartTimeout(d)`
 
-How long to wait for a node to accept connections after starting (default 10s):
+How long to wait for a node's `GET /health` to return `200 OK` after starting (default 10s):
 
 ```go
 New(WithCluster(1), WithNodeStartTimeout(30*time.Second))

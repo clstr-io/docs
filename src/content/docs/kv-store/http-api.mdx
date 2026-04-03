@@ -67,6 +67,19 @@ Response:
   - 200 OK: All keys cleared successfully
 ```
 
+### GET /health
+
+Reports whether the node is ready to serve requests.
+
+```markdown
+GET /health
+
+Response:
+  - 200 OK: Node is ready
+```
+
+The test harness polls this endpoint after starting each node and waits for a `200 OK` before running any tests. Return `200` only once your server is fully initialized and ready to handle requests.
+
 ### Error Handling
 
 Unsupported HTTP methods on any endpoint should return:
