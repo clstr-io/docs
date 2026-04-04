@@ -1,8 +1,9 @@
 // @ts-check
-import { execSync } from 'node:child_process';
 import { defineConfig } from 'astro/config';
-import starlight from '@astrojs/starlight';
 import sitemap from '@astrojs/sitemap';
+import starlight from '@astrojs/starlight';
+import { execSync } from 'node:child_process';
+import { starlightKatex } from "starlight-katex";
 
 const gitDates = {};
 for (const file of execSync('git ls-files src/content/docs/', { encoding: 'utf8' }).trim().split('\n').filter(Boolean)) {
@@ -74,6 +75,7 @@ export default defineConfig({
         starlight({
         title: 'clstr.io',
         logo: { src: './src/assets/logo.svg' },
+        plugins: [starlightKatex()],
         components: {
             PageTitle: './src/components/PageTitle.astro',
         },
@@ -144,6 +146,6 @@ export default defineConfig({
                 if (date) item.lastmod = date;
                 return item;
             },
-        })
+        }),
     ],
 });
