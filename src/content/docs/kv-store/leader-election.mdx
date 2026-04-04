@@ -19,7 +19,7 @@ Each node listens on port `8080`. The cluster is static; membership doesn't chan
 
 All nodes start as followers. If a follower doesn't receive heartbeats within the **election timeout** (randomized between **500-1,000ms**), it becomes a candidate and starts an election.
 
-Candidates request votes from other nodes. A candidate becomes leader if it receives votes from a majority (⌈(n+1)/2⌉ where n is cluster size; 3 votes for a 5-node cluster). Each node grants at most one vote per term.
+Candidates request votes from other nodes. A candidate becomes leader if it receives votes from a majority ($\lceil\frac{n+1}{2}\rceil$ where $n$ is the cluster size; 3 votes for a 5-node cluster). Each node grants at most one vote per term.
 
 Terms act as a [logical clock](https://en.wikipedia.org/wiki/Logical_clock). When a node discovers a higher term, it immediately updates its term and reverts to follower.
 
