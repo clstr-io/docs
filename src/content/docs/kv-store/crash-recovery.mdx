@@ -27,14 +27,7 @@ After appending an operation to the log, ensure it's physically written to disk 
 
 Without sync, the OS may buffer writes in memory and you'll lose data on crash.
 
-:::caution
-Syncing on every operation is slow since you're forcing a disk write and blocking the response.
-Additionally, holding locks during synchronous disk I/O creates severe contention under concurrent load:
-multiple writers queue up waiting for the disk, serializing operations that could otherwise proceed in parallel.
-
-This is the correct trade-off for durability in a simple implementation, but it limits both throughput and concurrency.
-Production databases use techniques like batching to amortize the `fsync` cost across multiple operations and reduce lock hold times.
-:::
+Syncing on every write is slow — you're blocking the response on a disk round-trip, and holding locks during that I/O serializes concurrent writers. This is the right trade-off for durability in a simple implementation. Production databases amortize the cost by batching multiple operations into a single `fsync`.
 
 ## Recovery Procedure
 
