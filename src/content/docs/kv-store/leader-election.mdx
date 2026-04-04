@@ -29,10 +29,7 @@ Leaders send `AppendEntries` RPC heartbeats every **100ms** to maintain authorit
 
 If a follower doesn't receive heartbeats within the election timeout, it starts a new election.
 
-:::note
-These timing values are more generous than the Raft paper's suggested 150-300ms election timeout. The larger timeouts provide tolerance for occasional runtime pauses (such as garbage collection) and network delays, reducing the likelihood of spurious elections.
-This helps ensure varying implementations can pass tests reliably.
-:::
+These values are more generous than the Raft paper's suggested 150–300ms timeout, which gives implementations room to handle GC pauses and network jitter without spurious elections.
 
 ## Client Requests
 
@@ -49,9 +46,9 @@ If no leader is known, return `503 Service Unavailable`.
 
 ## Persistence
 
-Persist `currentTerm` and `votedFor` to disk before responding to `RequestVote` RPC. Use `fsync` to ensure durability.
+Persist `currentTerm` and `votedFor` to disk before responding to any RPC that changes them. Use `fsync` to ensure durability.
 
-State must survive crashes and restarts. A node that crashes and restarts should resume with its persisted term and vote.
+State must survive crashes and restarts. A node that crashes and restarts should resume with its persisted state.
 
 ## API
 
@@ -59,75 +56,83 @@ State must survive crashes and restarts. A node that crashes and restarts should
 
 `RequestVote` RPC - invoked by candidates to gather votes during leader election.
 
-```markdown
+```
 POST /raft/request-vote
 
-Body:
-  {
-    "term": <int>,                # candidate's term
-    "candidate-id": "<ip>:<port>",    # candidate requesting vote
-    "last-log-index": <int>,      # index of candidate's last log entry
-    "last-log-term": <int>        # term of candidate's last log entry
-  }
+{
+  "term": 3,
+  "candidate-id": "10.0.42.3:8080",
+  "last-log-index": 0,
+  "last-log-term": 0
+}
 
-Response:
-  - 200 OK:
-    {
-      "term": <int>,            # current-term, for candidate to update itself
-      "vote-granted": <bool>    # true means candidate received vote
-    }
+----
+
+200
+{
+  "term": 3,
+  "vote-granted": true
+}
 ```
 
-In this stage with no log entries yet, set `last-log-index` and `last-log-term` to `0`.
+- `term` — candidate's current term
+- `candidate-id` — address of the candidate requesting the vote
+- `last-log-index` / `last-log-term` — set to `0` in this stage; no log entries yet
+- `vote-granted` — whether the vote was granted
+- response `term` — the responder's current term, so a stale candidate can update itself
 
 ### POST /raft/append-entries
 
 `AppendEntries` RPC - used for heartbeats (empty entries) to maintain leader authority.
 
-```markdown
+```
 POST /raft/append-entries
 
-Body:
-  {
-    "term": <int>,              # leader's term
-    "leader-id": "<ip>:<port>",     # so follower can redirect clients
-    "prev-log-index": <int>,    # index of log entry immediately preceding new ones
-    "prev-log-term": <int>,     # term of prev-log-index entry
-    "entries": [],              # empty for heartbeats; will contain log entries later
-    "leader-commit": <int>      # leader's commit-index
-  }
+{
+  "term": 3,
+  "leader-id": "10.0.42.2:8080",
+  "prev-log-index": 0,
+  "prev-log-term": 0,
+  "entries": [],
+  "leader-commit": 0
+}
 
-Response:
-  - 200 OK:
-    {
-      "term": <int>,       # current-term, for leader to update itself
-      "success": <bool>    # true if follower contained entry matching prev-log-index/prev-log-term
-    }
+----
+
+200
+{
+  "term": 3,
+  "success": true
+}
 ```
 
-In this stage with no log entries yet, set `prev-log-index` and `prev-log-term` to `0`.
+- `leader-id` — the leader's address, so followers can redirect clients
+- `entries` — empty in this stage; will carry log entries in later stages
+- `prev-log-index` / `prev-log-term` — set to `0` in this stage; no log entries yet
+- `success` — `true` if the follower's log matched `prev-log-index` and `prev-log-term`
+- response `term` — the responder's current term, so a stale leader can step down
 
 ### GET /cluster/info
 
-Get the node's current cluster state and role.
+Returns the node's current cluster state.
 
-```markdown
+```
 GET /cluster/info
 
-Response:
-  - 200 OK:
-    {
-      "role": "leader|candidate|follower",
-      "term": <int>,
-      "leader": "<ip>:<port>",         # null if no known leader
-      "voted-for": "<ip>:<port>",      # null if haven't voted this term
-                                       # own address if voted for self
-      "peers": ["<ip>:<port>", ...]    # all cluster members, sorted lexicographically
-    }
+----
+
+200
+{
+  "role": "leader",
+  "term": 3,
+  "leader": "10.0.42.2:8080",
+  "peers": ["10.0.42.3:8080", "10.0.42.4:8080", "10.0.42.5:8080", "10.0.42.6:8080"]
+}
 ```
 
-Returns a snapshot of the node's state at the instant the request is made.
-The `leader` field is `null` when no leader is known (startup, during election, after leader failure).
+- `role` — one of `leader`, `candidate`, or `follower`
+- `leader` — the known leader's address, or `null` during elections and after leader failure
+- `peers` — all cluster members except this node, sorted lexicographically
 
 ## Testing
 
@@ -139,12 +144,12 @@ Testing leader-election: Cluster Elects and Maintains Leader
 
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
+✓ Terms Increment After Leader Crash
 ✓ Leader Maintains Authority via Heartbeats
-✓ Follower Redirects Clients to Leader
-✓ State Survives Crashes
-✓ Minority Partition Cannot Elect Leader
-✓ Majority Partition Elects Leader
-✓ Healing After Partition
+✓ Follower Redirects to Leader
+✓ Service Unavailable During Election
+✓ Partition Enforces Quorum
+✓ Cluster Converges After Partition Heals
 
 PASSED ✓
 
@@ -154,21 +159,19 @@ Run 'clstr next' to advance to the next stage.
 Example failure:
 
 ```console
-$ clstr test
+$ clstr test leader-election
 Testing leader-election: Cluster Elects and Maintains Leader
 
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
-✓ Leader Maintains Authority via Heartbeats
-✓ Follower Redirects Clients to Leader
-✓ State Survives Crashes
-✗ Minority Partition Cannot Elect Leader
+✗ Terms Increment After Leader Crash
 
-GET http://127.0.0.1:8000/cluster/info
-  Expected: No leader elected in minority partition (2 nodes) after 5 seconds
-  Actual: Node :8001 became leader in minority partition
+GET http://127.0.0.1:8001/cluster/info
+  Expected JSON field term: > 1
+  Actual value: 1
 
-  Are you requiring majority votes?
+  Term should increment after a new election (was 1).
+  Candidates must increment currentTerm before starting an election.
 
 FAILED ✗
 

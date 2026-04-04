@@ -21,24 +21,28 @@ description: Dynamically add and remove nodes from the cluster without downtime.
 
 Join a cluster.
 
-```markdown
+```
 POST /cluster/join
-Body:
-  {
-    "leader": "<ip>:<port>"    # the leader's address
-  }
-Response:
-  - 200 OK: Successfully joined cluster
+
+{
+  "leader": "10.0.42.2:8080"
+}
+
+----
+
+200
 ```
 
 ### POST /cluster/leave
 
 Leave the cluster.
 
-```markdown
+```
 POST /cluster/leave
-Response:
-  - 200 OK: Successfully initiated removal from cluster
+
+----
+
+200
 ```
 
 ## Resources

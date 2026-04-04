@@ -17,11 +17,13 @@ import (
 )
 
 func HTTPAPI() *Suite {
-    return New(WithCluster(1)).
+    return New(
+        WithCluster(1),
+    ).
 
         // 1
         Test("PUT stores data", func(do *Do) {
-            do.PUT("n1", "/kv/key", "value").
+            do.PUT(Node("n1"), "/kv/key", "value").
                 Status(Is(200)).
                 Hint("Your server should accept PUT requests.\n" +
                     "Ensure your HTTP handler processes PUT to /kv/{key}.").
@@ -30,7 +32,7 @@ func HTTPAPI() *Suite {
 
         // 2
         Test("GET retrieves data", func(do *Do) {
-            do.GET("n1", "/kv/key").
+            do.GET(Node("n1"), "/kv/key").
                 Status(Is(200)).
                 Body(Is("value")).
                 Hint("Your server should return stored values.").
@@ -46,33 +48,102 @@ Tests run sequentially. State persists between tests so data written in test 1 i
 Make HTTP requests using the method-specific helpers:
 
 ```go
-do.GET(name, path, args...)
-do.PUT(name, path, args...)
-do.POST(name, path, args...)
-do.DELETE(name, path, args...)
-do.PATCH(name, path, args...)
+do.GET(sel, path, args...)
+do.PUT(sel, path, args...)
+do.POST(sel, path, args...)
+do.DELETE(sel, path, args...)
+do.PATCH(sel, path, args...)
 ```
 
-`name` is the node name (e.g. `"n1"`). Optional `args` are a body string and an `H` header map:
+`sel` is a `NodeSelector` that targets one or more nodes. Optional `args` are a body string and an `H` header map:
 
 ```go
 // No body
-do.GET("n1", "/kv/key")
+do.GET(Node("n1"), "/kv/key")
 
 // With body
-do.PUT("n1", "/kv/key", "value")
+do.PUT(Node("n1"), "/kv/key", "value")
 
 // With body and headers
-do.POST("n1", "/api", `{"key":"value"}`, H{"Content-Type": "application/json"})
+do.POST(Node("n1"), "/api", `{"key":"value"}`, H{"Content-Type": "application/json"})
 ```
 
 Each call returns an `*Assertion`. Chain modifiers onto it and call `.Check()` to execute:
 
 ```go
-do.PUT("n1", "/kv/key", "value").
+do.PUT(Node("n1"), "/kv/key", "value").
     Status(Is(200)).
     Hint("Your server should accept PUT requests.").
     Check()
+```
+
+## Node Selectors
+
+A `NodeSelector` controls which nodes receive a request and how the assertion is evaluated.
+
+### `Node(name)`
+
+Targets a single named node. The assertion passes if that node satisfies all conditions.
+
+```go
+do.GET(Node("n1"), "/cluster/info").
+    JSON("role", Is("leader")).
+    Check()
+```
+
+### `do.AllNodes(names...)`
+
+Passes when every node satisfies the assertion. With no arguments, targets all nodes in the cluster. Pass names to target a subset:
+
+```go
+// All nodes in the cluster
+do.GET(do.AllNodes(), "/cluster/info").
+    Eventually(2*time.Second).
+    JSON("term", GreaterThan("3")).
+    Check()
+
+// Subset
+do.GET(do.AllNodes("n1", "n2"), "/cluster/info").
+    Consistently(2*time.Second).
+    JSON("leader", IsNull[string]()).
+    Check()
+```
+
+Killed or stopped nodes are automatically excluded.
+
+### `do.ExactlyOneNode(names...)`
+
+Passes when exactly one node satisfies the assertion. Useful for asserting a single leader:
+
+```go
+do.GET(do.ExactlyOneNode(), "/cluster/info").
+    Consistently(2*time.Second).
+    JSON("role", Is("leader")).
+    Check()
+```
+
+### `do.AtLeastOneNode(names...)`
+
+Passes when at least one node satisfies the assertion:
+
+```go
+do.GET(do.AtLeastOneNode(), "/cluster/info").
+    Eventually(2*time.Second).
+    JSON("role", Is("leader")).
+    Check()
+```
+
+### `do.Nodes()`
+
+Returns the names of all nodes in the cluster. Useful when you need to iterate nodes manually:
+
+```go
+for _, name := range do.Nodes() {
+    r := do.Fetch(name, "/cluster/info")
+    if r != nil && r.JSON("role") == "leader" {
+        // ...
+    }
+}
 ```
 
 ## Assertion Modifiers
@@ -82,7 +153,7 @@ do.PUT("n1", "/kv/key", "value").
 Validates the HTTP response status code:
 
 ```go
-do.GET("n1", "/kv/missing").
+do.GET(Node("n1"), "/kv/missing").
     Status(Is(404)).
     Hint("Return 404 for missing keys.").
     Check()
@@ -93,7 +164,7 @@ do.GET("n1", "/kv/missing").
 Validates the HTTP response body:
 
 ```go
-do.GET("n1", "/kv/missing").
+do.GET(Node("n1"), "/kv/missing").
     Status(Is(404)).
     Body(Is("key not found\n")).
     Hint("Return 'key not found\\n' for missing keys.").
@@ -105,7 +176,7 @@ do.GET("n1", "/kv/missing").
 Validates a JSON field at the given [gjson](https://github.com/tidwall/gjson) path:
 
 ```go
-do.GET("n1", "/cluster/info").
+do.GET(Node("n1"), "/cluster/info").
     Status(Is(200)).
     JSON("role", Is("leader")).
     JSON("term", Is("1")).
@@ -113,15 +184,27 @@ do.GET("n1", "/cluster/info").
     Check()
 
 // Nested fields
-do.GET("n1", "/log").
+do.GET(Node("n1"), "/log").
     JSON("entries.0.term", Is("1")).
     JSON("entries.1.index", Is("2")).
     Check()
 
 // Null check
-do.GET("n1", "/cluster/info").
+do.GET(Node("n1"), "/cluster/info").
     JSON("leader", IsNull[string]()).
     Hint("Leader should be null when no leader elected.").
+    Check()
+```
+
+### `.Header(name, checkers...)`
+
+Validates a response header:
+
+```go
+do.PUT(Node("n2"), "/kv/foo", "value").
+    Status(Is(307)).
+    Header("Location", Matches(`^http://10\.0\.42\.\d+:\d+/kv/foo$`)).
+    Hint("Followers should redirect writes to the leader.").
     Check()
 ```
 
@@ -130,7 +213,7 @@ do.GET("n1", "/cluster/info").
 Sets the help text shown when the assertion fails. Write it as a concrete next step:
 
 ```go
-do.PUT("n1", "/kv/", "value").
+do.PUT(Node("n1"), "/kv/", "value").
     Status(Is(400)).
     Body(Is("key cannot be empty\n")).
     Hint("Your server should reject empty keys.\n" +
@@ -152,7 +235,7 @@ Retries until the assertion passes or the timeout expires (default 5s):
 
 ```go
 // Wait for replica to sync
-do.GET("n2", "/kv/key").
+do.GET(Node("n2"), "/kv/key").
     Eventually().
     Status(Is(200)).
     Body(Is("value")).
@@ -160,7 +243,7 @@ do.GET("n2", "/kv/key").
     Check()
 
 // Custom timeout
-do.GET("n2", "/kv/key").
+do.GET(Node("n2"), "/kv/key").
     Eventually(10 * time.Second).
     Status(Is(200)).
     Body(Is("value")).
@@ -174,7 +257,7 @@ Verifies the assertion stays true for the entire duration (default 5s):
 
 ```go
 // Verify no leader is elected in minority partition
-do.GET("n1", "/cluster/info").
+do.GET(do.AllNodes("n1", "n2"), "/cluster/info").
     Consistently(5 * time.Second).
     JSON("leader", IsNull[string]()).
     Hint("Minority partition should not elect a leader.").
@@ -190,6 +273,15 @@ Exact equality:
 ```go
 Status(Is(200))
 Body(Is("key not found\n"))
+```
+
+### `GreaterThan(value)` / `LessThan(value)`
+
+Ordered comparisons. Work on any comparable type — most commonly strings from JSON fields:
+
+```go
+JSON("term", GreaterThan("1"))
+JSON("index", LessThan("100"))
 ```
 
 ### `IsNull[T]()`
@@ -308,6 +400,25 @@ Restores full connectivity on every node:
 do.Heal()
 ```
 
+### `do.Fetch(name, path)`
+
+Makes a one-off GET request to a named node and returns a `*FetchResponse`. Returns `nil` if the node is unreachable. Useful for reading state before an assertion:
+
+```go
+info := do.Fetch("n1", "/cluster/info")
+if info == nil {
+    panic("n1 is down")
+}
+term := info.JSON("term")
+
+do.Kill("n1")
+
+do.GET(do.AllNodes(), "/cluster/info").
+    Eventually(2*time.Second).
+    JSON("term", GreaterThan(term)).
+    Check()
+```
+
 ## Concurrency
 
 ### `do.Concurrently(n, fn)`
@@ -316,7 +427,7 @@ Runs `fn` `n` times in parallel, passing each invocation a 1-based index:
 
 ```go
 do.Concurrently(100, func(i int) {
-    do.PUT("n1", fmt.Sprintf("/kv/key%d", i), fmt.Sprintf("value%d", i)).
+    do.PUT(Node("n1"), fmt.Sprintf("/kv/key%d", i), fmt.Sprintf("value%d", i)).
         Status(Is(200)).
         Hint("Your server should handle concurrent PUT requests.").
         Check()
@@ -404,7 +515,7 @@ func HTTPAPI() *Suite {
 
         // 1
         Test("PUT Basic Operations", func(do *Do) {
-            do.PUT("n1", "/kv/key", "value").
+            do.PUT(Node("n1"), "/kv/key", "value").
                 Status(Is(200)).
                 Hint("Your server should accept PUT requests.").
                 Check()
@@ -412,7 +523,7 @@ func HTTPAPI() *Suite {
 
         // 2
         Test("GET Basic Operations", func(do *Do) {
-            do.GET("n1", "/kv/key").
+            do.GET(Node("n1"), "/kv/key").
                 Status(Is(200)).
                 Body(Is("value")).
                 Hint("Your server should return stored values.").
