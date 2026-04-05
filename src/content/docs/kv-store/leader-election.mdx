@@ -7,13 +7,14 @@ Implement [Raft](https://raft.github.io/raft.pdf) leader election to form a stat
 
 ## Cluster Formation
 
-The test harness starts each node as a Docker container on a shared network and passes the other nodes' addresses via the `PEERS` environment variable:
+The test harness starts each node as a Docker container on a shared network and sets two environment variables:
 
 ```
+ADDR=10.0.42.101:8080
 PEERS=10.0.42.102:8080,10.0.42.103:8080,10.0.42.104:8080,10.0.42.105:8080
 ```
 
-Each node listens on port `8080`. The cluster is static; membership doesn't change in this stage.
+`ADDR` is this node's own address. `PEERS` is a comma-separated list of the other nodes' addresses. Each node listens on port `8080`. The cluster is static; membership doesn't change in this stage.
 
 ## Leader Election
 
@@ -76,7 +77,7 @@ POST /raft/request-vote
 ```
 
 - `term`: candidate's current term
-- `candidate-id`: address of the candidate requesting the vote
+- `candidate-id`: the candidate's own address (from `ADDR`)
 - `last-log-index` / `last-log-term`: set to `0` in this stage; no log entries yet
 - `vote-granted`: whether the vote was granted
 - response `term`: the responder's current term, so a stale candidate can update itself
@@ -106,7 +107,7 @@ POST /raft/append-entries
 }
 ```
 
-- `leader-id`: the leader's address, so followers can redirect clients
+- `leader-id`: the leader's own address (from `ADDR`), so followers can redirect clients
 - `entries`: empty in this stage; will carry log entries in later stages
 - `prev-log-index` / `prev-log-term`: set to `0` in this stage; no log entries yet
 - `success`: `true` if the follower's log matched `prev-log-index` and `prev-log-term`
@@ -123,6 +124,7 @@ GET /cluster/info
 
 200
 {
+  "id": "10.0.42.101:8080",
   "role": "leader",
   "term": 3,
   "leader": "10.0.42.101:8080",
@@ -130,18 +132,21 @@ GET /cluster/info
 }
 ```
 
+- `id`: this node's own address (from `ADDR`)
 - `role`: this node's current role, one of `leader`, `candidate`, or `follower`
-- `leader`: the known leader's address, or `null` during elections and after leader failure
+- `term`: current term; starts at `0` before any election
+- `leader`: the known leader's address, or `null` before an election and after leader failure
 - `peers`: all cluster members except this node, sorted lexicographically
 
 ## Testing
 
-Your server will be started as a 5-node cluster, with the other four nodes' addresses passed via `PEERS`. The tests will verify leader election behavior:
+Your server will be started as a 5-node cluster, with its own address in `ADDR` and the other four nodes' addresses in `PEERS`. The tests will verify leader election behavior:
 
 ```console
 $ clstr test leader-election
 Testing leader-election: Cluster Elects and Maintains Leader
 
+✓ Cluster Info Returns Pre-Election State
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
 ✓ New Leader Elected After Leader Crash
@@ -177,6 +182,17 @@ FAILED ✗
 
 Read the guide: clstr.io/kv-store/leader-election
 ```
+
+### Debugging
+
+Each node's output (`stdout`/`stderr`) is available via `docker logs`. Nodes are named `n1` through `n5`:
+
+```console
+$ docker logs clstr-kv-store-n1
+$ docker logs clstr-kv-store-n2
+```
+
+Add your own logging to help trace election and heartbeat activity across nodes.
 
 ## Resources
 

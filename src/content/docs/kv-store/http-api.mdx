@@ -24,9 +24,12 @@ hello world
 
 400
 key cannot be empty
+
+400
+value cannot be empty
 ```
 
-The body is the value to store as plain text. Return `400` with `value cannot be empty` if the body is empty.
+The body is the value to store as plain text. Return `400` with `key cannot be empty` if the key is empty, or `value cannot be empty` if the body is empty.
 
 ### GET /kv/\{key\}
 
@@ -142,7 +145,13 @@ Run 'clstr next' to advance to the next stage.
 
 ### Debugging
 
-Your server's output (`stdout`/`stderr`) is available via `docker logs`. Add your own logging to help debug issues.
+Your server's output (`stdout`/`stderr`) is available via `docker logs`:
+
+```console
+$ docker logs clstr-kv-store-n1
+```
+
+Add your own logging to help debug issues.
 
 When tests fail, `clstr` will show you exactly what went wrong:
 
@@ -150,10 +159,10 @@ When tests fail, `clstr` will show you exactly what went wrong:
 $ clstr test
 Testing http-api: Store and Retrieve Data
 
-✓ PUT Basic Operations
-✓ PUT Edge and Error Cases
-✓ GET Basic Operations
-✗ GET Edge and Error Cases
+✓ PUT - Basic Operations
+✓ PUT - Edge and Error Cases
+✓ GET - Basic Operations
+✗ GET - Edge and Error Cases
 
 GET http://127.0.0.1:42409/kv/nonexistent:key
   Expected response: "key not found\n"
