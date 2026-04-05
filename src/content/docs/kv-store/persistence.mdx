@@ -18,7 +18,7 @@ When your server receives a termination signal (SIGTERM or SIGINT), it should:
 
 When your server starts, it should:
 
-1. Check the `--data-dir` path for existing data
+1. Check the `DATA_DIR` environment variable for the data directory path
 2. Load any previously saved key-value pairs
 3. Continue serving requests with the restored data
 
@@ -26,13 +26,13 @@ If no previous data exists, start with an empty store.
 
 ## Storage
 
-Save your in-memory state to disk during shutdown and restore it on startup. Create your data files in the data directory (passed via `--data-dir`). The serialization format and file naming are up to you - JSON, binary ([Protocol Buffers](https://protobuf.dev/), [MessagePack](https://msgpack.org/index.html), [BSON](https://bsonspec.org/), [gob](https://pkg.go.dev/encoding/gob), [pickle](https://docs.python.org/3/library/pickle.html)), plain text, whatever.
+Save your in-memory state to disk during shutdown and restore it on startup. Create your data files in the directory given by the `DATA_DIR` environment variable. The serialization format and file naming are up to you - JSON, binary ([Protocol Buffers](https://protobuf.dev/), [MessagePack](https://msgpack.org/index.html), [BSON](https://bsonspec.org/), [gob](https://pkg.go.dev/encoding/gob), [pickle](https://docs.python.org/3/library/pickle.html)), plain text, whatever.
 
 This approach survives clean shutdowns but not crashes. If the process dies unexpectedly, you'll lose any data that wasn't saved. That's fine for this stage - you'll add crash recovery in the next stage.
 
 ## Testing
 
-The test harness mounts a persistent volume at `/app/data` and passes `--data-dir=/app/data` to your server. Your server should store and load data from the path given by `--data-dir`.
+The test harness mounts a persistent volume at `/app/data` and sets the `DATA_DIR` environment variable to `/app/data`.
 
 You can test your implementation using the `clstr` command:
 
