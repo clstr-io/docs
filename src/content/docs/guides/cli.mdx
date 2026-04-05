@@ -70,7 +70,7 @@ $ clstr init <challenge> [path]
 Creates a new challenge directory with:
 - `Dockerfile`   - Builds and runs your server in a container
 - `README.md`   - Challenge overview and requirements
-- `clstr.state` - Tracks your progress
+- `clstr.yaml`  - Tracks your progress
 - `.gitignore`  - Files to .gitignore
 
 **Flags:**
@@ -124,7 +124,7 @@ Fix the issues, then run `clstr test` again. The CLI is designed for quick itera
 $ clstr next
 ```
 
-Advances to the next stage after verifying the current stage passes. Updates `clstr.state` automatically.
+Advances to the next stage after verifying the current stage passes. Updates `clstr.yaml` automatically.
 
 If the current stage hasn't been completed, `clstr next` runs tests first and only advances if they pass.
 
@@ -145,7 +145,7 @@ Creates a new challenge in the specified directory (or current directory if not 
 
 **Usage:** `clstr test [stage]`
 
-Runs tests for the current stage (from `clstr.state`) or a specific stage if provided.
+Runs tests for the current stage (from `clstr.yaml`) or a specific stage if provided.
 
 ```console
 $ clstr test                # Test current stage
@@ -165,7 +165,7 @@ This is useful for regression testing to ensure earlier stages still pass as you
 
 **Usage:** `clstr next`
 
-Advances to the next stage after verifying current stage passes all tests. Updates `clstr.state` automatically.
+Advances to the next stage after verifying current stage passes all tests. Updates `clstr.yaml` automatically.
 
 ### clstr status
 
@@ -200,7 +200,7 @@ Implement leader-election, then run 'clstr test'.
 
 Lists all available challenges with stage counts.
 
-## Understanding clstr.state
+## Understanding clstr.yaml
 
 The state file tracks your progress with a simple format:
 

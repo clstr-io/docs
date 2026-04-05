@@ -27,7 +27,7 @@ func HTTPAPI() *Suite {
                 Status(Is(200)).
                 Hint("Your server should accept PUT requests.\n" +
                     "Ensure your HTTP handler processes PUT to /kv/{key}.").
-                Check()
+                Run()
         }).
 
         // 2
@@ -36,7 +36,7 @@ func HTTPAPI() *Suite {
                 Status(Is(200)).
                 Body(Is("value")).
                 Hint("Your server should return stored values.").
-                Check()
+                Run()
         })
 }
 ```
@@ -68,69 +68,69 @@ do.PUT(Node("n1"), "/kv/key", "value")
 do.POST(Node("n1"), "/api", `{"key":"value"}`, H{"Content-Type": "application/json"})
 ```
 
-Each call returns an `*Assertion`. Chain modifiers onto it and call `.Check()` to execute:
+Each call returns a `*Check`. Chain modifiers onto it and call `.Run()` to execute:
 
 ```go
 do.PUT(Node("n1"), "/kv/key", "value").
     Status(Is(200)).
     Hint("Your server should accept PUT requests.").
-    Check()
+    Run()
 ```
 
 ## Node Selectors
 
-A `NodeSelector` controls which nodes receive a request and how the assertion is evaluated.
+A `NodeSelector` controls which nodes receive a request and how the check is evaluated.
 
 ### `Node(name)`
 
-Targets a single named node. The assertion passes if that node satisfies all conditions.
+Targets a single named node. The check passes if that node satisfies all conditions.
 
 ```go
 do.GET(Node("n1"), "/cluster/info").
     JSON("role", Is("leader")).
-    Check()
+    Run()
 ```
 
 ### `do.AllNodes(names...)`
 
-Passes when every node satisfies the assertion. With no arguments, targets all nodes in the cluster. Pass names to target a subset:
+Passes when every node satisfies the check. With no arguments, targets all nodes in the cluster. Pass names to target a subset:
 
 ```go
 // All nodes in the cluster
 do.GET(do.AllNodes(), "/cluster/info").
     Eventually(2*time.Second).
     JSON("term", GreaterThan("3")).
-    Check()
+    Run()
 
 // Subset
 do.GET(do.AllNodes("n1", "n2"), "/cluster/info").
     Consistently(2*time.Second).
     JSON("leader", IsNull[string]()).
-    Check()
+    Run()
 ```
 
 Killed or stopped nodes are automatically excluded.
 
 ### `do.ExactlyOneNode(names...)`
 
-Passes when exactly one node satisfies the assertion. Useful for asserting a single leader:
+Passes when exactly one node satisfies the check. Useful for verifying a single leader:
 
 ```go
 do.GET(do.ExactlyOneNode(), "/cluster/info").
     Consistently(2*time.Second).
     JSON("role", Is("leader")).
-    Check()
+    Run()
 ```
 
 ### `do.AtLeastOneNode(names...)`
 
-Passes when at least one node satisfies the assertion:
+Passes when at least one node satisfies the check:
 
 ```go
 do.GET(do.AtLeastOneNode(), "/cluster/info").
     Eventually(2*time.Second).
     JSON("role", Is("leader")).
-    Check()
+    Run()
 ```
 
 ### `do.Nodes()`
@@ -146,9 +146,9 @@ for _, name := range do.Nodes() {
 }
 ```
 
-## Assertion Modifiers
+## Check Modifiers
 
-### `.Status(checkers...)`
+### `.Status(matchers...)`
 
 Validates the HTTP response status code:
 
@@ -156,10 +156,10 @@ Validates the HTTP response status code:
 do.GET(Node("n1"), "/kv/missing").
     Status(Is(404)).
     Hint("Return 404 for missing keys.").
-    Check()
+    Run()
 ```
 
-### `.Body(checkers...)`
+### `.Body(matchers...)`
 
 Validates the HTTP response body:
 
@@ -168,10 +168,10 @@ do.GET(Node("n1"), "/kv/missing").
     Status(Is(404)).
     Body(Is("key not found\n")).
     Hint("Return 'key not found\\n' for missing keys.").
-    Check()
+    Run()
 ```
 
-### `.JSON(path, checkers...)`
+### `.JSON(path, matchers...)`
 
 Validates a JSON field at the given [gjson](https://github.com/tidwall/gjson) path:
 
@@ -181,22 +181,22 @@ do.GET(Node("n1"), "/cluster/info").
     JSON("role", Is("leader")).
     JSON("term", Is("1")).
     Hint("Should return cluster info.").
-    Check()
+    Run()
 
 // Nested fields
 do.GET(Node("n1"), "/log").
     JSON("entries.0.term", Is("1")).
     JSON("entries.1.index", Is("2")).
-    Check()
+    Run()
 
 // Null check
 do.GET(Node("n1"), "/cluster/info").
     JSON("leader", IsNull[string]()).
     Hint("Leader should be null when no leader elected.").
-    Check()
+    Run()
 ```
 
-### `.Header(name, checkers...)`
+### `.Header(name, matchers...)`
 
 Validates a response header:
 
@@ -205,12 +205,12 @@ do.PUT(Node("n2"), "/kv/foo", "value").
     Status(Is(307)).
     Header("Location", Matches(`^http://10\.0\.42\.\d+:\d+/kv/foo$`)).
     Hint("Followers should redirect writes to the leader.").
-    Check()
+    Run()
 ```
 
 ### `.Hint(text)`
 
-Sets the help text shown when the assertion fails. Write it as a concrete next step:
+Sets the help text shown when the check fails. Write it as a concrete next step:
 
 ```go
 do.PUT(Node("n1"), "/kv/", "value").
@@ -218,20 +218,20 @@ do.PUT(Node("n1"), "/kv/", "value").
     Body(Is("key cannot be empty\n")).
     Hint("Your server should reject empty keys.\n" +
         "Add validation to return 400 Bad Request for empty keys.").
-    Check()
+    Run()
 ```
 
-### `.Check()`
+### `.Run()`
 
-Executes the assertion. Panics on failure, which is caught by the test runner and reported as a test failure.
+Executes the check. Panics on failure, which is caught by the test runner and reported as a test failure.
 
 ## Timing
 
-By default assertions execute once immediately. Use `.Eventually()` or `.Consistently()` to change this.
+By default checks execute once immediately. Use `.Eventually()` or `.Consistently()` to change this.
 
 ### `.Eventually(timeout ...time.Duration)`
 
-Retries until the assertion passes or the timeout expires (default 5s):
+Retries until the check passes or the timeout expires (default 5s):
 
 ```go
 // Wait for replica to sync
@@ -240,7 +240,7 @@ do.GET(Node("n2"), "/kv/key").
     Status(Is(200)).
     Body(Is("value")).
     Hint("Replica should eventually receive replicated data.").
-    Check()
+    Run()
 
 // Custom timeout
 do.GET(Node("n2"), "/kv/key").
@@ -248,12 +248,12 @@ do.GET(Node("n2"), "/kv/key").
     Status(Is(200)).
     Body(Is("value")).
     Hint("Replica should sync within 10 seconds.").
-    Check()
+    Run()
 ```
 
 ### `.Consistently(timeout ...time.Duration)`
 
-Verifies the assertion stays true for the entire duration (default 5s):
+Verifies the check stays true for the entire duration (default 5s):
 
 ```go
 // Verify no leader is elected in minority partition
@@ -261,10 +261,10 @@ do.GET(do.AllNodes("n1", "n2"), "/cluster/info").
     Consistently(5 * time.Second).
     JSON("leader", IsNull[string]()).
     Hint("Minority partition should not elect a leader.").
-    Check()
+    Run()
 ```
 
-## Checkers
+## Matchers
 
 ### `Is(value)`
 
@@ -277,7 +277,7 @@ Body(Is("key not found\n"))
 
 ### `GreaterThan(value)` / `LessThan(value)`
 
-Ordered comparisons. Work on any comparable type — most commonly strings from JSON fields:
+Ordered comparisons. Work on any comparable type, most commonly strings from JSON fields:
 
 ```go
 JSON("term", GreaterThan("1"))
@@ -325,18 +325,18 @@ Accepts any of the provided values. Useful when order is non-deterministic:
 Body(OneOf("value1", "value2", "value3"))
 ```
 
-### `Not(checker)`
+### `Not(matcher)`
 
-Negates another checker:
+Negates another matcher:
 
 ```go
 Status(Not(Is(500)))
 Body(Not(Contains("panic")))
 ```
 
-### Multiple checkers
+### Multiple matchers
 
-Pass multiple checkers to any modifier — all must pass:
+Pass multiple matchers to any modifier; all must pass:
 
 ```go
 Status(Is(200), Not(Is(404)))
@@ -402,7 +402,7 @@ do.Heal()
 
 ### `do.Fetch(name, path)`
 
-Makes a one-off GET request to a named node and returns a `*FetchResponse`. Returns `nil` if the node is unreachable. Useful for reading state before an assertion:
+Makes a one-off GET request to a named node and returns a `*FetchResponse`. Returns `nil` if the node is unreachable. Useful for reading state before a check:
 
 ```go
 info := do.Fetch("n1", "/cluster/info")
@@ -416,7 +416,7 @@ do.Kill("n1")
 do.GET(do.AllNodes(), "/cluster/info").
     Eventually(2*time.Second).
     JSON("term", GreaterThan(term)).
-    Check()
+    Run()
 ```
 
 ## Concurrency
@@ -430,7 +430,7 @@ do.Concurrently(100, func(i int) {
     do.PUT(Node("n1"), fmt.Sprintf("/kv/key%d", i), fmt.Sprintf("value%d", i)).
         Status(Is(200)).
         Hint("Your server should handle concurrent PUT requests.").
-        Check()
+        Run()
 })
 ```
 
@@ -470,12 +470,12 @@ How long to wait for a node to exit after SIGTERM before sending SIGKILL (defaul
 New(WithCluster(1), WithNodeShutdownTimeout(15*time.Second))
 ```
 
-### `WithAssertTimeout(d)`
+### `WithRetryTimeout(d)`
 
 Default timeout for `Eventually` and `Consistently` (default 5s):
 
 ```go
-New(WithCluster(1), WithAssertTimeout(10*time.Second))
+New(WithCluster(1), WithRetryTimeout(10*time.Second))
 ```
 
 ### `WithRequestTimeout(d)`
@@ -514,20 +514,20 @@ func HTTPAPI() *Suite {
     return New(WithCluster(1)).
 
         // 1
-        Test("PUT Basic Operations", func(do *Do) {
+        Test("PUT - Basic Operations", func(do *Do) {
             do.PUT(Node("n1"), "/kv/key", "value").
                 Status(Is(200)).
                 Hint("Your server should accept PUT requests.").
-                Check()
+                Run()
         }).
 
         // 2
-        Test("GET Basic Operations", func(do *Do) {
+        Test("GET - Basic Operations", func(do *Do) {
             do.GET(Node("n1"), "/kv/key").
                 Status(Is(200)).
                 Body(Is("value")).
                 Hint("Your server should return stored values.").
-                Check()
+                Run()
         })
 }
 ```

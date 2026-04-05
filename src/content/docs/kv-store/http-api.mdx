@@ -92,7 +92,7 @@ Unsupported HTTP methods on any endpoint should return:
 
 ## Storage
 
-A simple in-memory [map/dictionary](https://en.wikipedia.org/wiki/Associative_array) is sufficient for this stage — the dataset fits in memory and you'll add persistence in the next stage. Make sure your store handles concurrent requests safely; the tests will hit multiple endpoints in parallel.
+A simple in-memory [map/dictionary](https://en.wikipedia.org/wiki/Associative_array) is sufficient for this stage; the dataset fits in memory and you'll add persistence in the next stage. Make sure your store handles concurrent requests safely; the tests will hit multiple endpoints in parallel.
 
 ### Data Model
 
@@ -124,12 +124,12 @@ You can test your implementation using the `clstr` command:
 $ clstr test http-api
 Testing http-api: Store and Retrieve Data
 
-✓ PUT Basic Operations
-✓ PUT Edge and Error Cases
-✓ GET Basic Operations
-✓ GET Edge and Error Cases
-✓ DELETE Basic Operations
-✓ DELETE Edge and Error Cases
+✓ PUT - Basic Operations
+✓ PUT - Edge and Error Cases
+✓ GET - Basic Operations
+✓ GET - Edge and Error Cases
+✓ DELETE - Basic Operations
+✓ DELETE - Edge and Error Cases
 ✓ CLEAR Operations
 ✓ Concurrent Operations - Different Keys
 ✓ Concurrent Operations - Same Key
