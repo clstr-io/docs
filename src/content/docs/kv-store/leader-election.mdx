@@ -149,9 +149,9 @@ Testing leader-election: Cluster Elects and Maintains Leader
 ✓ Cluster Info Returns Pre-Election State
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
-✓ New Leader Elected After Leader Crash
 ✓ Leader Maintains Authority via Heartbeats
 ✓ Followers Redirect to Leader
+✓ New Leader Elected After Leader Crash
 ✓ Service Unavailable During Election
 ✓ Partition Enforces Quorum
 ✓ Cluster Converges After Partition Heals
@@ -167,16 +167,33 @@ Example failure:
 $ clstr test leader-election
 Testing leader-election: Cluster Elects and Maintains Leader
 
+✓ Cluster Info Returns Pre-Election State
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
-✗ New Leader Elected After Leader Crash
+✓ Leader Maintains Authority via Heartbeats
+✓ Followers Redirect to Leader
+✓ New Leader Elected After Leader Crash
+✓ Service Unavailable During Election
+✗ Partition Enforces Quorum
 
-GET http://127.0.0.1:8001/cluster/info
-  Expected JSON field term: > 1
-  Actual value: 1
+GET - 1 of 2 nodes passed (expected all 2)
+  http://127.0.0.1:8003/cluster/info (n1) → 200
+    Expected field "role": one of [follower, candidate]
+      {
+        "id": "10.0.42.101:8080",
+        "leader": "10.0.42.101:8080",
+        "peers": [
+          "10.0.42.102:8080",
+          "10.0.42.103:8080",
+          "10.0.42.104:8080",
+          "10.0.42.105:8080"
+        ],
+        "role": "leader",
+        "term": 5
+      }
 
-  Term should increment after a new election (was 1).
-  Candidates must increment currentTerm before starting an election.
+  The minority partition [n1, n2] must not elect a leader.
+  A candidate needs votes from at least 3 nodes; with only n1 and n2 reachable, no election can succeed.
 
 FAILED ✗
 
