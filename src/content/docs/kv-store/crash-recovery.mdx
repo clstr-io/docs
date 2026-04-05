@@ -27,7 +27,7 @@ After appending an operation to the log, ensure it's physically written to disk 
 
 Without sync, the OS may buffer writes in memory and you'll lose data on crash.
 
-Syncing on every write is slow — you're blocking the response on a disk round-trip, and holding locks during that I/O serializes concurrent writers. This is the right trade-off for durability in a simple implementation. Production databases amortize the cost by batching multiple operations into a single `fsync`.
+Syncing on every write is slow: you're blocking the response on a disk round-trip, and holding locks during that I/O serializes concurrent writers. This is the right trade-off for durability in a simple implementation. Production databases amortize the cost by batching multiple operations into a single `fsync`.
 
 ## Recovery Procedure
 

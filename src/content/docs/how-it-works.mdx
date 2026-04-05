@@ -33,7 +33,7 @@ Run `clstr init kv-store --language go` to create a new challenge directory with
 
 - `Dockerfile`   - Builds and runs your server in a container
 - `README.md`   - Challenge overview and requirements
-- `clstr.state` - Tracks your progress
+- `clstr.yaml`  - Tracks your progress
 - `.gitignore`  - Files to .gitignore
 
 Update the `Dockerfile` to build and run your implementation. You can use any language - Go, Python, Rust, even Ponylang.
@@ -44,7 +44,7 @@ Write your implementation in any language to solve the challenge's first stage. 
 
 ## Advance Through Stages
 
-Pass the current stage, then run `clstr next` to unlock the next stage. Each stage builds on the previous one, gradually adding complexity.
+Pass the current stage, then run `clstr next` to unlock the next stage. Each stage builds on the previous one, gradually adding complexity. CI runs `clstr test --so-far` on every push, so your implementation must continue satisfying all earlier stages as you advance.
 
 By the end of the challenge, you'll have a deep understanding of how these systems actually work because you built one yourself.
 

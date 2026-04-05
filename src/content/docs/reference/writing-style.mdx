@@ -15,6 +15,8 @@ Structure learning through progressive disclosure. Start each challenge with the
 
 Introduce one major capability per stage: one testable system behavior that builds on previous work. Supporting concepts can appear as needed, but each stage should add one clear building block to the system. Describe stages based on the capability they add, not the mechanism used to achieve it. This keeps focus on what the system accomplishes at each stage.
 
+Each new stage must be backwards compatible with all prior stages. CI runs `clstr test --so-far`, which tests every stage up to and including the current one on every push. A new stage must not change the external contracts (HTTP endpoints, response formats, error messages) defined by earlier stages. Implementations that were passing before must continue to pass.
+
 Constrain interfaces and contracts that affect testing or compatibility. Leave internal implementation details (data structures, algorithms, optimizations) to the reader's judgment.
 
 Link to external resources when you introduce concepts. Point to tutorials, papers, lectures, or reference implementations - whatever explains it best. Don't replicate explanations that already exist; point to the best resource and move on.
@@ -34,7 +36,5 @@ Structure each stage with a brief introduction (one or two sentences on what the
 When defining API contracts, data formats, or expected behaviors, be exact. Include complete endpoint specifications with methods, parameters, responses, and literal error messages. Specify data constraints explicitly. The goal is removing ambiguity about _what_ to build without prescribing _how_ to build it.
 
 Use code blocks to show test invocations, command-line usage, and expected outputs - not implementation code or algorithms. Readers should see how to verify their work and what correct behavior looks like. When test behavior isn't obvious from output alone, briefly explain what the test does, especially when it affects implementation constraints (which signals, timing requirements, error conditions to handle).
-
-Reserve callouts for critical non-obvious concerns. Don't use them for general information that belongs in body text.
 
 Link concepts inline when they first appear. Add comprehensive resources like books, lecture series, and reference implementations to the challenge's index page.

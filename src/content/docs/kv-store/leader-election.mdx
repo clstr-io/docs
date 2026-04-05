@@ -75,11 +75,11 @@ POST /raft/request-vote
 }
 ```
 
-- `term` — candidate's current term
-- `candidate-id` — address of the candidate requesting the vote
-- `last-log-index` / `last-log-term` — set to `0` in this stage; no log entries yet
-- `vote-granted` — whether the vote was granted
-- response `term` — the responder's current term, so a stale candidate can update itself
+- `term`: candidate's current term
+- `candidate-id`: address of the candidate requesting the vote
+- `last-log-index` / `last-log-term`: set to `0` in this stage; no log entries yet
+- `vote-granted`: whether the vote was granted
+- response `term`: the responder's current term, so a stale candidate can update itself
 
 ### POST /raft/append-entries
 
@@ -106,11 +106,11 @@ POST /raft/append-entries
 }
 ```
 
-- `leader-id` — the leader's address, so followers can redirect clients
-- `entries` — empty in this stage; will carry log entries in later stages
-- `prev-log-index` / `prev-log-term` — set to `0` in this stage; no log entries yet
-- `success` — `true` if the follower's log matched `prev-log-index` and `prev-log-term`
-- response `term` — the responder's current term, so a stale leader can step down
+- `leader-id`: the leader's address, so followers can redirect clients
+- `entries`: empty in this stage; will carry log entries in later stages
+- `prev-log-index` / `prev-log-term`: set to `0` in this stage; no log entries yet
+- `success`: `true` if the follower's log matched `prev-log-index` and `prev-log-term`
+- response `term`: the responder's current term, so a stale leader can step down
 
 ### GET /cluster/info
 
@@ -130,9 +130,9 @@ GET /cluster/info
 }
 ```
 
-- `role` — one of `leader`, `candidate`, or `follower`
-- `leader` — the known leader's address, or `null` during elections and after leader failure
-- `peers` — all cluster members except this node, sorted lexicographically
+- `role`: this node's current role, one of `leader`, `candidate`, or `follower`
+- `leader`: the known leader's address, or `null` during elections and after leader failure
+- `peers`: all cluster members except this node, sorted lexicographically
 
 ## Testing
 
@@ -144,7 +144,7 @@ Testing leader-election: Cluster Elects and Maintains Leader
 
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
-✓ Terms Increment After Leader Crash
+✓ New Leader Elected After Leader Crash
 ✓ Leader Maintains Authority via Heartbeats
 ✓ Follower Redirects to Leader
 ✓ Service Unavailable During Election
@@ -164,7 +164,7 @@ Testing leader-election: Cluster Elects and Maintains Leader
 
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
-✗ Terms Increment After Leader Crash
+✗ New Leader Elected After Leader Crash
 
 GET http://127.0.0.1:8001/cluster/info
   Expected JSON field term: > 1
