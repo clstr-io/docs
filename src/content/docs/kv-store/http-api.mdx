@@ -164,9 +164,10 @@ Testing http-api: Store and Retrieve Data
 ✓ GET - Basic Operations
 ✗ GET - Edge and Error Cases
 
-GET http://127.0.0.1:42409/kv/nonexistent:key
-  Expected response: "key not found\n"
-  Actual response: "\n"
+GET http://127.0.0.1:42409/kv/nonexistent:key (n1) → 404
+  Expected response: key not found
+
+  Actual response: 
 
   Your server should return 404 Not Found when a key doesn't exist.
   Check your key lookup logic and error handling.
