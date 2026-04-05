@@ -5,7 +5,7 @@ description: Build a distributed key-value store from scratch using Raft consens
 
 Welcome to the distributed key-value store challenge!
 
-You'll build a distributed key-value store from scratch using Raft consensus, the same algorithm that powers [etcd](https://etcd.io/) and [Consul](https://developer.hashicorp.com/consul). Start with a single-node system that handles persistence and crash recovery, then implement leader election, log replication, and fault tolerance.
+You'll build a distributed key-value store from scratch using Raft consensus, the same algorithm that powers [etcd](https://etcd.io/) and [Consul](https://developer.hashicorp.com/consul). Start with a single-node system that handles persistence and crash recovery, then implement leader election, log replication, and dynamic cluster membership.
 
 This is the first project in LittleClusters' distributed systems series. It teaches consensus-based replication; later projects will teach different patterns like leaderless replication, CRDTs, and Byzantine fault tolerance.
 
@@ -31,17 +31,17 @@ Form a cluster and elect a leader using the Raft consensus algorithm.
 
 Replicate operations from the leader to followers with strong consistency guarantees.
 
-### [Membership Changes](/kv-store/membership-changes/)
-
-Dynamically add and remove nodes from the cluster without downtime.
-
-### [Fault Tolerance](/kv-store/fault-tolerance/)
-
-Handle node failures and network partitions while maintaining safety guarantees.
-
 ### [Log Compaction](/kv-store/log-compaction/)
 
 Prevent unbounded log growth through snapshots and log truncation.
+
+### [Membership Changes](/kv-store/membership-changes/)
+
+Add and remove nodes from the cluster one at a time without downtime.
+
+### [Joint Consensus](/kv-store/joint-consensus/)
+
+Add and remove multiple nodes at once using joint consensus.
 
 ## Getting Started
 
