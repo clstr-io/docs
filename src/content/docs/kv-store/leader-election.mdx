@@ -34,9 +34,9 @@ These values are more generous than the Raft paper's suggested 150–300ms timeo
 
 ## Client Requests
 
-Leaders accept GET/PUT/DELETE requests from the HTTP API stage.
+Leaders accept `GET`, `PUT`, and `DELETE` requests from the HTTP API stage.
 
-Followers respond with `307 Temporary Redirect` and `Location` header pointing to the current leader:
+Followers redirect all requests to the leader with `307 Temporary Redirect` and a `Location` header:
 
 ```
 HTTP/1.1 307 Temporary Redirect
@@ -151,7 +151,7 @@ Testing leader-election: Cluster Elects and Maintains Leader
 ✓ Exactly One Leader Per Term
 ✓ New Leader Elected After Leader Crash
 ✓ Leader Maintains Authority via Heartbeats
-✓ Follower Redirects to Leader
+✓ Followers Redirect to Leader
 ✓ Service Unavailable During Election
 ✓ Partition Enforces Quorum
 ✓ Cluster Converges After Partition Heals
@@ -193,6 +193,12 @@ $ docker logs clstr-kv-store-n2
 ```
 
 Add your own logging to help trace election and heartbeat activity across nodes.
+
+### Network Partitions
+
+Partition tests use `iptables` DROP rules applied directly inside each container to cut traffic between groups of nodes. Rules are bidirectional, so a partitioned node can neither send to nor receive from nodes in the other group. When the partition heals, all rules are flushed on every node to restore full connectivity.
+
+Your implementation doesn't need to do anything special to support this. Partitions are transparent at the network level: RPCs to unreachable nodes will time out or be refused.
 
 ## Resources
 

@@ -5,6 +5,24 @@ description: Prevent unbounded log growth through snapshots and log truncation.
 
 // TODO
 
+## API
+
+### GET /log/snapshot
+
+Returns snapshot metadata. Before any snapshot is taken, both fields are `0`.
+
+```
+GET /log/snapshot
+
+----
+
+200
+{
+  "last-included-index": 10,
+  "last-included-term": 2
+}
+```
+
 ## Rough Notes
 
 - Prevent unbounded log growth
