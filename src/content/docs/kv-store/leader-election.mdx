@@ -149,9 +149,9 @@ Testing leader-election: Cluster Elects and Maintains Leader
 ✓ Cluster Info Returns Pre-Election State
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
-✓ New Leader Elected After Leader Crash
 ✓ Leader Maintains Authority via Heartbeats
 ✓ Followers Redirect to Leader
+✓ New Leader Elected After Leader Crash
 ✓ Service Unavailable During Election
 ✓ Partition Enforces Quorum
 ✓ Cluster Converges After Partition Heals
@@ -167,16 +167,17 @@ Example failure:
 $ clstr test leader-election
 Testing leader-election: Cluster Elects and Maintains Leader
 
+✓ Cluster Info Returns Pre-Election State
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
-✗ New Leader Elected After Leader Crash
+✗ Leader Maintains Authority via Heartbeats
 
 GET http://127.0.0.1:8001/cluster/info
-  Expected JSON field term: > 1
-  Actual value: 1
+  Expected JSON field role: "leader"
+  Actual value: "follower"
 
-  Term should increment after a new election (was 1).
-  Candidates must increment currentTerm before starting an election.
+  Leader changed during steady state - heartbeats may not be working.
+  Send empty AppendEntries RPCs every 100ms to prevent followers from timing out.
 
 FAILED ✗
 
