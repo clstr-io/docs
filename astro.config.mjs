@@ -117,9 +117,9 @@ export default defineConfig({
                     { label: 'Crash Recovery', slug: 'kv-store/crash-recovery' },
                     { label: 'Leader Election', slug: 'kv-store/leader-election' },
                     { label: 'Log Replication', slug: 'kv-store/log-replication' },
-                    { label: 'Membership Changes', slug: 'kv-store/membership-changes' },
-                    { label: 'Fault Tolerance', slug: 'kv-store/fault-tolerance' },
                     { label: 'Log Compaction', slug: 'kv-store/log-compaction' },
+                    { label: 'Membership Changes', slug: 'kv-store/membership-changes' },
+                    { label: 'Joint Consensus', slug: 'kv-store/joint-consensus' },
                 ],
             },
             {
