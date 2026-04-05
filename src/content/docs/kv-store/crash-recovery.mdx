@@ -64,7 +64,7 @@ Organize these in the working directory however makes sense - separate files, su
 
 ## Testing
 
-The test harness mounts a persistent volume at `/app/data` and passes `--data-dir=/app/data`, same as the previous stage. Your server should store and load data from the path given by `--data-dir`.
+The test harness mounts a persistent volume at `/app/data` and sets the `DATA_DIR` environment variable to `/app/data`, same as the previous stage.
 
 Your server will be tested with unexpected crashes:
 

@@ -7,10 +7,10 @@ Implement [Raft](https://raft.github.io/raft.pdf) leader election to form a stat
 
 ## Cluster Formation
 
-The test harness starts each node as a Docker container on a shared network and passes the other nodes' addresses via the `--peers` flag:
+The test harness starts each node as a Docker container on a shared network and passes the other nodes' addresses via the `PEERS` environment variable:
 
 ```
---peers=10.0.42.3:8080,10.0.42.4:8080,10.0.42.5:8080,10.0.42.6:8080
+PEERS=10.0.42.102:8080,10.0.42.103:8080,10.0.42.104:8080,10.0.42.105:8080
 ```
 
 Each node listens on port `8080`. The cluster is static; membership doesn't change in this stage.
@@ -39,7 +39,7 @@ Followers respond with `307 Temporary Redirect` and `Location` header pointing t
 
 ```
 HTTP/1.1 307 Temporary Redirect
-Location: http://10.0.42.2:8080/kv/mykey
+Location: http://10.0.42.101:8080/kv/mykey
 ```
 
 If no leader is known, return `503 Service Unavailable`.
@@ -61,7 +61,7 @@ POST /raft/request-vote
 
 {
   "term": 3,
-  "candidate-id": "10.0.42.3:8080",
+  "candidate-id": "10.0.42.102:8080",
   "last-log-index": 0,
   "last-log-term": 0
 }
@@ -90,7 +90,7 @@ POST /raft/append-entries
 
 {
   "term": 3,
-  "leader-id": "10.0.42.2:8080",
+  "leader-id": "10.0.42.101:8080",
   "prev-log-index": 0,
   "prev-log-term": 0,
   "entries": [],
@@ -125,8 +125,8 @@ GET /cluster/info
 {
   "role": "leader",
   "term": 3,
-  "leader": "10.0.42.2:8080",
-  "peers": ["10.0.42.3:8080", "10.0.42.4:8080", "10.0.42.5:8080", "10.0.42.6:8080"]
+  "leader": "10.0.42.101:8080",
+  "peers": ["10.0.42.102:8080", "10.0.42.103:8080", "10.0.42.104:8080", "10.0.42.105:8080"]
 }
 ```
 
@@ -136,7 +136,7 @@ GET /cluster/info
 
 ## Testing
 
-Your server will be started as a 5-node cluster, with the other four nodes' addresses passed via `--peers`. The tests will verify leader election behavior:
+Your server will be started as a 5-node cluster, with the other four nodes' addresses passed via `PEERS`. The tests will verify leader election behavior:
 
 ```console
 $ clstr test leader-election
