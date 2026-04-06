@@ -161,6 +161,47 @@ $ clstr test persistence --so-far    # Test all stages from http-api through per
 
 This is useful for regression testing to ensure earlier stages still pass as you progress through the challenge.
 
+### clstr logs
+
+**Usage:** `clstr logs <node>`
+
+Shows the captured logs for a node after a test run. Logs persist across restarts within a run, so you see the full history even after a crash or partition.
+
+```console
+$ clstr logs n1
+
+================ STARTED ================
+
+Node started addr=10.0.42.101:8080
+Voted for 10.0.42.104:8080 in term 1
+Election timeout, starting election for term 2
+Received vote from 10.0.42.105:8080 (2/3)
+Received vote from 10.0.42.102:8080 (3/3)
+Became leader in term 2
+
+================ KILLED ================
+
+
+================ STARTED ================
+
+Node started addr=10.0.42.101:8080
+Received heartbeat from 10.0.42.102:8080, stepping down in term 3
+
+================ PARTITIONED FROM: n3, n4, n5 ================
+
+Election timeout, starting election for term 4
+Received vote from 10.0.42.102:8080 (2/3)
+Election timeout, starting election for term 5
+Received vote from 10.0.42.102:8080 (2/3)
+
+================ PARTITION HEALED ================
+
+Election timeout, starting election for term 6
+Received vote from 10.0.42.102:8080 (2/3)
+Received vote from 10.0.42.103:8080 (3/3)
+Became leader in term 6
+```
+
 ### clstr next
 
 **Usage:** `clstr next`

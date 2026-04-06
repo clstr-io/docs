@@ -4,11 +4,11 @@ on:
   push:
     branches: [ main ]
     paths-ignore:
-      - '.github/dependabot.yml'
-      - '.gitignore'
-      - 'LICENSE'
-      - 'Makefile'
-      - 'README.md'
+      - .github/dependabot.yaml
+      - .gitignore
+      - CODE_OF_CONDUCT.md
+      - LICENSE
+      - README.md
 
 permissions:
   contents: read

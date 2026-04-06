@@ -143,12 +143,20 @@ PASSED ✓
 Run 'clstr next' to advance to the next stage.
 ```
 
-### Debugging
+## Debugging
 
-Your server's output (`stdout`/`stderr`) is available via `docker logs`:
+Your server's output (`stdout`/`stderr`) is captured during testing and viewable with `clstr logs`:
 
 ```console
-$ docker logs clstr-kv-store-n1
+$ clstr logs n1
+
+================ STARTED ================
+
+Server listening on 0.0.0.0:8080
+PUT /kv/kenya:capital accepted, value=Nairobi
+GET /kv/kenya:capital returning 200
+DELETE /kv/kenya:capital accepted
+GET /kv/kenya:capital returning 404
 ```
 
 Add your own logging to help debug issues.
