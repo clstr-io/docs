@@ -202,22 +202,73 @@ FAILED ✗
 Read the guide: https://clstr.io/kv-store/leader-election
 ```
 
-### Debugging
-
-Each node's output (`stdout`/`stderr`) is available via `docker logs`. Nodes are named `n1` through `n5`:
-
-```console
-$ docker logs clstr-kv-store-n1
-$ docker logs clstr-kv-store-n2
-```
-
-Add your own logging to help trace election and heartbeat activity across nodes.
-
 ### Network Partitions
 
 Partition tests use `iptables` DROP rules applied directly inside each container to cut traffic between groups of nodes. Rules are bidirectional, so a partitioned node can neither send to nor receive from nodes in the other group. When the partition heals, all rules are flushed on every node to restore full connectivity.
 
 Your implementation doesn't need to do anything special to support this. Partitions are transparent at the network level: RPCs to unreachable nodes will time out or be refused.
+
+## Debugging
+
+Each node's output (`stdout`/`stderr`) is captured during testing and viewable with `clstr logs`. Logs persist across restarts within a run, so you see the full history even after a crash or partition:
+
+```console
+$ clstr logs n1
+
+================ STARTED ================
+
+Node started addr=10.0.42.101:8080
+Voted for 10.0.42.104:8080 in term 1
+Received heartbeat from 10.0.42.104:8080, following in term 1
+
+================ KILLED ================
+
+
+================ STARTED ================
+
+Node started addr=10.0.42.101:8080
+Received heartbeat from 10.0.42.104:8080, following in term 1
+
+================ PARTITIONED FROM: n3, n4, n5 ================
+
+Heartbeat timeout, starting election for term 2
+Received vote from 10.0.42.102:8080 (2/5)
+Heartbeat timeout, starting election for term 3
+Received vote from 10.0.42.102:8080 (2/5)
+
+================ PARTITION HEALED ================
+
+Election timeout, starting election for term 4
+Received vote from 10.0.42.102:8080 (2/5)
+Received vote from 10.0.42.103:8080 (3/5)
+Became leader in term 4
+```
+
+```console
+$ clstr logs n4
+
+================ STARTED ================
+
+Node started addr=10.0.42.104:8080
+Election timeout, starting election for term 1
+Received vote from 10.0.42.101:8080 (2/5)
+Received vote from 10.0.42.102:8080 (3/5)
+Became leader in term 1
+
+================ PARTITIONED FROM: n1, n2 ================
+
+Heartbeat to 10.0.42.101:8080 failed
+Heartbeat to 10.0.42.102:8080 failed
+Maintaining leadership in term 1, majority reachable
+
+================ PARTITION HEALED ================
+
+Received RequestVote from 10.0.42.101:8080, stepping down in term 4
+Voted for 10.0.42.101:8080 in term 4
+Received heartbeat from 10.0.42.101:8080, following in term 4
+```
+
+Add your own logging to help trace election and heartbeat activity across nodes.
 
 ## Resources
 

@@ -58,6 +58,31 @@ The tests will:
 3. Restart your server
 4. Verify all data is still present
 
+## Debugging
+
+Your server's output (`stdout`/`stderr`) is captured during testing and viewable with `clstr logs`. The `STOPPED` and `STARTED` markers show exactly when the server was restarted:
+
+```console
+$ clstr logs n1
+
+================ STARTED ================
+
+Server listening on 0.0.0.0:8080
+PUT /kv/kenya:capital accepted, value=Nairobi
+PUT /kv/germany:capital accepted, value=Berlin
+Flushing 2 keys to /app/data/store.json
+
+================ STOPPED ================
+
+
+================ STARTED ================
+
+Server listening on 0.0.0.0:8080
+Loaded 2 keys from /app/data/store.json
+GET /kv/kenya:capital returning 200
+GET /kv/germany:capital returning 200
+```
+
 ## Resources
 
 - [Designing Data-Intensive Applications Chapter 4: Encoding and Evolution](https://dataintensive.net/) by Martin Kleppmann
