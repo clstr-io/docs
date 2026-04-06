@@ -72,10 +72,11 @@ Your server will be tested with unexpected crashes:
 $ clstr test crash-recovery
 Testing crash-recovery: Data Survives SIGKILL
 
-✓ Basic WAL Durability
-✓ Multiple Crash Recovery Cycles
-✓ Rapid Write Burst Before Crash
-✓ Test Recovery When Under Concurrent Load
+✓ Data Survives a Hard Crash
+✓ All Data Survives Repeated Hard Crashes
+✓ Rapid Sequential Writes Survive a Hard Crash
+✓ Rapid Concurrent Writes Survive a Hard Crash
+✓ CLEAR Survives a Hard Crash
 
 PASSED ✓
 
