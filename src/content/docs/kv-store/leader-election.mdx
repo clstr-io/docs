@@ -20,6 +20,8 @@ PEERS=10.0.42.102:8080,10.0.42.103:8080,10.0.42.104:8080,10.0.42.105:8080
 
 All nodes start as followers. If a follower doesn't receive heartbeats within the **election timeout** (randomized between **500-1,000ms**), it becomes a candidate and starts an election.
 
+These values are more generous than the Raft paper's suggested 150-300ms election timeout. Each node runs in a Docker container on a shared host, which adds container network latency and scheduling jitter on top of any GC or runtime pauses in your implementation. Higher values give varying implementations room to handle these issues without spurious elections.
+
 Candidates request votes from other nodes. A candidate becomes leader if it receives votes from a majority ($\lceil\frac{n+1}{2}\rceil$ where $n$ is the cluster size; 3 votes for a 5-node cluster). Each node grants at most one vote per term.
 
 Terms act as a [logical clock](https://en.wikipedia.org/wiki/Logical_clock). When a node discovers a higher term, it immediately updates its term and reverts to follower.
@@ -29,8 +31,6 @@ Terms act as a [logical clock](https://en.wikipedia.org/wiki/Logical_clock). Whe
 Leaders send `AppendEntries` RPC heartbeats every **100ms** to maintain authority. The `entries` array is empty in this stage.
 
 If a follower doesn't receive heartbeats within the election timeout, it starts a new election.
-
-These values are more generous than the Raft paper's suggested 150–300ms timeout, which gives implementations room to handle GC pauses and network jitter without spurious elections.
 
 ## Client Requests
 
@@ -55,7 +55,7 @@ State must survive crashes and restarts. A node that crashes and restarts should
 
 ### POST /raft/request-vote
 
-`RequestVote` RPC - invoked by candidates to gather votes during leader election.
+`RequestVote` RPC that is invoked by candidates to gather votes during leader election.
 
 ```
 POST /raft/request-vote
@@ -84,7 +84,7 @@ POST /raft/request-vote
 
 ### POST /raft/append-entries
 
-`AppendEntries` RPC - used for heartbeats (empty entries) to maintain leader authority.
+`AppendEntries` RPC that is used for heartbeats (empty entries) to maintain leader authority.
 
 ```
 POST /raft/append-entries
