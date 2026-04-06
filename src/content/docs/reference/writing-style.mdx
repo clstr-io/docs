@@ -29,10 +29,6 @@ Get to the point immediately. Skip introductory context about why topics are imp
 
 Maintain a matter-of-fact tone. Skip reassurance and cheerleading. An occasional emoji or light moment is fine, but default to straightforward instruction.
 
-## Test Names
-
-Name tests as declarative subject-verb statements that read like assertions: "Leader Election Completes", "Partition Enforces Quorum", "Followers Redirect to Leader". The name should state what must be true, so a failure is immediately informative without reading the test body.
-
 ## Formatting
 
 Structure each stage with a brief introduction (one or two sentences on what the reader will build), followed by precise specifications, implementation guidance, and testing instructions. Optionally include a debugging section with example test failures or debugging techniques. When showing failures, provide actionable guidance: expected versus actual output, then what to check or what might have gone wrong.
@@ -42,3 +38,7 @@ When defining API contracts, data formats, or expected behaviors, be exact. Incl
 Use code blocks to show test invocations, command-line usage, and expected outputs - not implementation code or algorithms. Readers should see how to verify their work and what correct behavior looks like. When test behavior isn't obvious from output alone, briefly explain what the test does, especially when it affects implementation constraints (which signals, timing requirements, error conditions to handle).
 
 Link concepts inline when they first appear. Add comprehensive resources like books, lecture series, and reference implementations to the challenge's index page.
+
+### Test Names
+
+Name tests as declarative subject-verb statements that read like assertions: "Leader Election Completes", "Partition Enforces Quorum", "Followers Redirect to Leader". The name should state what must be true, so a failure is immediately informative without reading the test body.

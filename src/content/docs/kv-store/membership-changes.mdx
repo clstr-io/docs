@@ -9,15 +9,15 @@ description: Dynamically add and remove nodes from the cluster without downtime.
 
 ### Approach
 
-Single-server changes only — add or remove one node at a time. This guarantees no two overlapping majorities can exist during a transition, avoiding split brain by construction. Joint consensus is covered in the next stage.
+Single-server changes only: add or remove one node at a time. This guarantees no two overlapping majorities can exist during a transition, avoiding split brain by construction. Joint consensus is covered in the next stage.
 
 ### Implementation
 
 - Replicate config change as a log entry; new config takes effect on commit
-- New nodes join as non-voting members first and catch up before being added to voting membership — prevents a lagging new node from stalling commits
+- New nodes join as non-voting members first and catch up before being added to voting membership (prevents a lagging new node from stalling commits)
 - Quorum calculation updates when the config entry is applied
 - If the leader removes itself, it steps down after the entry commits
-- One config change at a time — reject a new change if one is already in progress
+- One config change at a time; reject a new change if one is already in progress
 
 ## Cluster Management API
 

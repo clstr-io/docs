@@ -3,7 +3,7 @@ title: Testing
 description: API reference for the attest testing framework used to write clstr challenge tests.
 ---
 
-The testing framework (`attest`) provides a fluent API for writing black-box tests against programs running in Docker containers. Tests validate external behavior without accessing implementation internals.
+The testing framework ([`attest`](https://github.com/clstr-io/clstr/tree/main/internal/attest)) provides a fluent API for writing black-box tests against programs running in Docker containers. Tests validate external behavior without accessing implementation internals.
 
 ## Quick Start
 
@@ -83,7 +83,7 @@ A `NodeSelector` controls which nodes receive a request and how the check is eva
 
 ### `Node(name)`
 
-Targets a single named node. The check passes if that node satisfies all conditions.
+Targets a single named node. The check passes if that node satisfies all conditions:
 
 ```go
 do.GET(Node("n1"), "/cluster/info").
@@ -113,7 +113,7 @@ Killed or stopped nodes are automatically excluded.
 
 ### `do.ExactlyOneNode(names...)`
 
-Passes when exactly one node satisfies the check. Useful for verifying a single leader:
+Passes when exactly one node satisfies the check:
 
 ```go
 do.GET(do.ExactlyOneNode(), "/cluster/info").
