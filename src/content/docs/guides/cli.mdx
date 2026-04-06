@@ -85,7 +85,7 @@ $ clstr init kv-store --language python      # Create with a Python Dockerfile
 $ clstr init kv-store my-kvs --language rust # Create in ./my-kvs with a Rust Dockerfile
 ```
 
-### 2. Implement & Test
+### 2. Build in Any Language
 
 Update the `Dockerfile` to build and start your server. You can use any language as long as the container starts your program.
 
@@ -113,12 +113,12 @@ PUT http://127.0.0.1:45123/kv/ "foo"
   Your server accepted an empty key when it should reject it.
   Add validation to return 400 Bad Request for empty keys.
 
-Read the guide: clstr.io/kv-store/http-api
+Read the guide: https://clstr.io/kv-store/http-api
 ```
 
 Fix the issues, then run `clstr test` again. The CLI is designed for quick iteration, just keep running `clstr test` as you make changes.
 
-### 3. Progress Through Stages
+### 3. Advance
 
 ```console
 $ clstr next
@@ -126,7 +126,7 @@ $ clstr next
 
 Advances to the next stage after verifying the current stage passes. Updates `clstr.yaml` automatically.
 
-If the current stage hasn't been completed, `clstr next` runs tests first and only advances if they pass.
+It always runs tests first and only advances if they pass.
 
 ## Commands Reference
 
@@ -185,11 +185,11 @@ Progress:
 ✓ crash-recovery     - Data Survives SIGKILL
 → leader-election    - Cluster Elects and Maintains Leader
   log-replication    - Data Replicates to All Nodes
-  membership-changes - Add and Remove Nodes Dynamically
-  fault-tolerance    - Cluster Survives Failures and Partitions
   log-compaction     - System Manages Log Growth
+  membership-changes - Add and Remove Nodes One at a Time
+  joint-consensus    - Add and Remove Nodes in Bulk
 
-Read the guide: clstr.io/kv-store/leader-election
+Read the guide: https://clstr.io/kv-store/leader-election
 
 Implement leader-election, then run 'clstr test'.
 ```
