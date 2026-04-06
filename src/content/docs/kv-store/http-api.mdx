@@ -91,7 +91,7 @@ The test harness polls this endpoint after starting each node and waits for a `2
 
 Unsupported HTTP methods on any endpoint should return:
 
-- 405 Method Not Allowed: Return "method not allowed\n"
+- 405 Method Not Allowed: Return `method not allowed`
 
 ## Storage
 
@@ -127,16 +127,16 @@ You can test your implementation using the `clstr` command:
 $ clstr test http-api
 Testing http-api: Store and Retrieve Data
 
-✓ PUT - Basic Operations
-✓ PUT - Edge and Error Cases
-✓ GET - Basic Operations
-✓ GET - Edge and Error Cases
-✓ DELETE - Basic Operations
-✓ DELETE - Edge and Error Cases
-✓ CLEAR Operations
-✓ Concurrent Operations - Different Keys
-✓ Concurrent Operations - Same Key
-✓ Check Allowed HTTP Methods
+✓ PUT Stores Values
+✓ PUT Rejects Empty Keys and Values
+✓ GET Returns Stored Values
+✓ GET Rejects Missing and Invalid Keys
+✓ DELETE Idempotently Removes Keys
+✓ DELETE Rejects Empty Keys
+✓ CLEAR Removes All Keys from the Store
+✓ Concurrent Writes to Different Keys All Succeed
+✓ Concurrent Writes to the Same Key Do Not Corrupt Data
+✓ Unsupported HTTP Methods Return 405
 
 PASSED ✓
 
@@ -159,15 +159,14 @@ When tests fail, `clstr` will show you exactly what went wrong:
 $ clstr test
 Testing http-api: Store and Retrieve Data
 
-✓ PUT - Basic Operations
-✓ PUT - Edge and Error Cases
-✓ GET - Basic Operations
-✗ GET - Edge and Error Cases
+✓ PUT Stores Values
+✓ PUT Rejects Empty Keys and Values
+✓ GET Returns Stored Values
+✗ GET Rejects Missing and Invalid Keys
 
 GET http://127.0.0.1:42409/kv/nonexistent:key (n1) → 404
-  Expected response: key not found
-
-  Actual response: 
+  Expected response: matching pattern /^key not found\n?$/
+  Actual response:
 
   Your server should return 404 Not Found when a key doesn't exist.
   Check your key lookup logic and error handling.

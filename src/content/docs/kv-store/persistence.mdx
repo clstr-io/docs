@@ -40,9 +40,11 @@ You can test your implementation using the `clstr` command:
 $ clstr test
 Testing persistence: Data Survives SIGTERM
 
-✓ Verify Data Survives Graceful Restart
-✓ Check Data Integrity After Multiple Restarts
-✓ Test Persistence When Under Concurrent Load
+✓ Data Survives a Graceful Restart
+✓ All Data Survives Repeated Graceful Restarts
+✓ Rapid Sequential Writes Survive a Graceful Restart
+✓ Rapid Concurrent Writes Survive a Graceful Restart
+✓ CLEAR Survives a Graceful Restart
 
 PASSED ✓
 

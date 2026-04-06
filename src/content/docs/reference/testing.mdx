@@ -166,8 +166,8 @@ Validates the HTTP response body:
 ```go
 do.GET(Node("n1"), "/kv/missing").
     Status(Is(404)).
-    Body(Is("key not found\n")).
-    Hint("Return 'key not found\\n' for missing keys.").
+    Body(Matches("^key not found\n?$")).
+    Hint("Return 'key not found' for missing keys.").
     Run()
 ```
 
@@ -215,7 +215,7 @@ Sets the help text shown when the check fails. Write it as a concrete next step:
 ```go
 do.PUT(Node("n1"), "/kv/", "value").
     Status(Is(400)).
-    Body(Is("key cannot be empty\n")).
+    Body(Matches("^key cannot be empty\n?$")).
     Hint("Your server should reject empty keys.\n" +
         "Add validation to return 400 Bad Request for empty keys.").
     Run()
@@ -272,7 +272,7 @@ Exact equality:
 
 ```go
 Status(Is(200))
-Body(Is("key not found\n"))
+Body(Matches("^key not found\n?$"))
 ```
 
 ### `GreaterThan(value)` / `LessThan(value)`
@@ -514,7 +514,7 @@ func HTTPAPI() *Suite {
     return New(WithCluster(1)).
 
         // 1
-        Test("PUT - Basic Operations", func(do *Do) {
+        Test("PUT Stores Values", func(do *Do) {
             do.PUT(Node("n1"), "/kv/key", "value").
                 Status(Is(200)).
                 Hint("Your server should accept PUT requests.").
@@ -522,7 +522,7 @@ func HTTPAPI() *Suite {
         }).
 
         // 2
-        Test("GET - Basic Operations", func(do *Do) {
+        Test("GET Returns Stored Values", func(do *Do) {
             do.GET(Node("n1"), "/kv/key").
                 Status(Is(200)).
                 Body(Is("value")).

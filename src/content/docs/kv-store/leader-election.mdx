@@ -146,11 +146,12 @@ Your server will be started as a 5-node cluster, with its own address in `ADDR` 
 $ clstr test leader-election
 Testing leader-election: Cluster Elects and Maintains Leader
 
-✓ Cluster Info Returns Pre-Election State
+✓ /cluster/info Returns Pre-Election State
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
 ✓ Leader Maintains Authority via Heartbeats
 ✓ Followers Redirect to Leader
+✓ Leader Handles KV Operations
 ✓ New Leader Elected After Leader Crash
 ✓ Service Unavailable During Election
 ✓ Partition Enforces Quorum
@@ -167,11 +168,12 @@ Example failure:
 $ clstr test leader-election
 Testing leader-election: Cluster Elects and Maintains Leader
 
-✓ Cluster Info Returns Pre-Election State
+✓ /cluster/info Returns Pre-Election State
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
 ✓ Leader Maintains Authority via Heartbeats
 ✓ Followers Redirect to Leader
+✓ Leader Handles KV Operations
 ✓ New Leader Elected After Leader Crash
 ✓ Service Unavailable During Election
 ✗ Partition Enforces Quorum
