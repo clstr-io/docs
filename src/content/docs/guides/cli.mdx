@@ -132,7 +132,7 @@ It always runs tests first and only advances if they pass.
 
 Run `clstr --help` to see all available commands, or `clstr <command> --help` for command-specific options.
 
-### clstr init
+### `clstr init`
 
 **Usage:** `clstr init <challenge> [path]`
 
@@ -141,7 +141,7 @@ Creates a new challenge in the specified directory (or current directory if not 
 **Flags:**
 - `--language`, `--lang`, `-l` - Generate a `Dockerfile` for the specified language (e.g. `go`, `python`, `rust`)
 
-### clstr test
+### `clstr test`
 
 **Usage:** `clstr test [stage]`
 
@@ -161,7 +161,7 @@ $ clstr test persistence --so-far    # Test all stages from http-api through per
 
 This is useful for regression testing to ensure earlier stages still pass as you progress through the challenge.
 
-### clstr logs
+### `clstr logs`
 
 **Usage:** `clstr logs <node>`
 
@@ -202,13 +202,13 @@ Received vote from 10.0.42.103:8080 (3/3)
 Became leader in term 6
 ```
 
-### clstr next
+### `clstr next`
 
 **Usage:** `clstr next`
 
 Advances to the next stage after verifying current stage passes all tests. Updates `clstr.yaml` automatically.
 
-### clstr status
+### `clstr status`
 
 **Usage:** `clstr status`
 
@@ -235,18 +235,19 @@ Read the guide: https://clstr.io/kv-store/leader-election
 Implement leader-election, then run 'clstr test'.
 ```
 
-### clstr list
+### `clstr list`
 
 **Usage:** `clstr list`
 
 Lists all available challenges with stage counts.
 
-## Understanding clstr.yaml
+## Understanding `clstr.yaml`
 
 The state file tracks your progress with a simple format:
 
-```
-kv-store:persistence
+```yaml
+challenge: kv-store
+stage: persistence
 ```
 
 Format: `<challenge>:<stage>`
