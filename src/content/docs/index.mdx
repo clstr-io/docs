@@ -179,13 +179,21 @@ Run 'clstr next' to advance to the next stage.
 
   /* ── Challenges ──────────────────────────────────────────────────────────── */
 
-  .sl-link-card:hover {
+  .sl-link-card {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .sl-link-card:hover,
+  .sl-link-card:active {
     border-color: var(--sl-color-accent) !important;
   }
 
   .sl-link-card:hover .title,
   .sl-link-card:hover .description,
-  .sl-link-card:hover .icon {
+  .sl-link-card:hover .icon,
+  .sl-link-card:active .title,
+  .sl-link-card:active .description,
+  .sl-link-card:active .icon {
     color: var(--sl-color-accent) !important;
   }
 

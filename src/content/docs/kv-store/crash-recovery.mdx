@@ -8,7 +8,7 @@ In this stage, you'll add durability so data survives unexpected failures.
 
 ## Write-Ahead Logging
 
-Implement a [Write-Ahead Log (WAL)](https://www.architecture-weekly.com/p/the-write-ahead-log-a-foundation) that records operations before they're applied to memory. Each write operation must be written to the log file before updating your in-memory store.
+Implement a [Write-Ahead Log (WAL)](https://www.architecture-weekly.com/p/the-write-ahead-log-a-foundation) that records operations before they're applied to memory. If the process crashes between a write and its memory update, the log survives and you can replay it on restart to reconstruct state.
 
 ### Log Format
 
@@ -25,9 +25,9 @@ Each log entry needs enough information to replay the operation:
 
 After appending an operation to the log, ensure it's physically written to disk before responding to the client. Use your language's file sync mechanism (`fsync`, `flush`, etc.) to force the operating system to persist the write.
 
-Without sync, the OS may buffer writes in memory and you'll lose data on crash.
+Without `fsync`, the OS may buffer writes in memory and you'll lose data on crash.
 
-Syncing on every write is slow: you're blocking the response on a disk round-trip, and holding locks during that I/O serializes concurrent writers. This is the right trade-off for durability in a simple implementation. Production databases amortize the cost by batching multiple operations into a single `fsync`.
+Syncing on every write is slow: you're blocking the response on a disk round-trip, and holding locks during that I/O serializes concurrent writers. This is the right trade-off for a simple implementation, but if the concurrent write tests start failing, consider batching multiple operations into a single `fsync` to amortize the cost.
 
 ## Recovery Procedure
 
@@ -43,7 +43,7 @@ If no snapshot exists, replay the entire log from the beginning.
 
 As your log grows, replaying from the beginning becomes slow. Periodically create snapshots of your in-memory state and truncate the log.
 
-When to checkpoint is up to you - after N operations, every M seconds, when the log reaches a certain size, etc. The test doesn't care about your checkpoint strategy, only that recovery works correctly.
+When to checkpoint is up to you: after N operations, every M seconds, when the log reaches a certain size, etc. The test doesn't care about your checkpoint strategy, only that recovery works correctly.
 
 After creating a snapshot:
 
@@ -53,14 +53,14 @@ After creating a snapshot:
 
 On recovery, load the latest snapshot and replay only the operations logged after that snapshot.
 
-## Storage Layout
+## Storage
 
 You now have two types of files:
 
 - **Snapshot**: Full state at a point in time (from previous stage)
 - **WAL**: Operations logged since the last snapshot
 
-Organize these in the working directory however makes sense - separate files, subdirectories, naming conventions, etc. The test only cares that recovery works, not how you structure the files.
+Organize these in the data directory however makes sense.
 
 ## Testing
 
@@ -85,8 +85,8 @@ Run 'clstr next' to advance to the next stage.
 
 The tests will:
 
-1. Store data in your server
-2. Kill the server process (SIGKILL) without warning
+1. Store data in your server (through HTTP API calls)
+2. Kill the server process (`SIGKILL`) without warning
 3. Restart your server
 4. Verify all data that was acknowledged before the crash is still present
 
