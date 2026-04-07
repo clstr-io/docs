@@ -357,7 +357,7 @@ Nodes are started automatically at the beginning of a suite via `WithCluster`. U
 
 ### `do.Stop(name)`
 
-Sends SIGTERM and waits for graceful exit:
+Sends `SIGTERM` and waits for graceful exit:
 
 ```go
 do.Stop("n1")
@@ -365,7 +365,7 @@ do.Stop("n1")
 
 ### `do.Kill(name)`
 
-Sends SIGKILL immediately:
+Sends `SIGKILL` immediately:
 
 ```go
 do.Kill("n1")
@@ -464,7 +464,7 @@ New(WithCluster(1), WithNodeStartTimeout(30*time.Second))
 
 ### `WithNodeShutdownTimeout(d)`
 
-How long to wait for a node to exit after SIGTERM before sending SIGKILL (default 5s):
+How long to wait for a node to exit after `SIGTERM` before sending `SIGKILL` (default 5s):
 
 ```go
 New(WithCluster(1), WithNodeShutdownTimeout(15*time.Second))

@@ -3,11 +3,11 @@ title: How It Works
 description: An overview of the clstr.io CLI, testing system, and challenge workflow.
 ---
 
-clstr.io breaks down distributed systems into stages you build incrementally: databases, caches, message queues, lock services, and more. Each challenge teaches a different pattern (consensus, replication, partitioning, fault tolerance), starting simple and adding complexity one stage at a time.
+clstr.io breaks down distributed systems into stages you build incrementally: databases, caches, message queues, lock services, and more. Each challenge teaches different patterns (consensus, replication, partitioning, fault tolerance), starting simple and adding complexity one stage at a time.
 
-Tests verify behavior against real-world scenarios: network failures, crash recovery, concurrent access. They check what your system does, not how it's built, so you're free to choose your own data structures and algorithms.
+Tests verify behavior against real-world scenarios: network failures, crash recovery, concurrent access. They check what your system does, not how it's built. Your system must conform to the API contract, but the implementation is up to you.
 
-Each stage explains what to implement and links out to good resources. Here's how to get started.
+Each stage explains what to implement and links out to good resources. Here's how to get started:
 
 ## Installation
 
@@ -15,11 +15,11 @@ See [this guide](/guides/cli/#installation) on how to install the CLI on your sy
 
 ## Pick a Challenge
 
-Run `clstr list` to see all available challenges. Start with the [distributed key-value store challenge](/kv-store/).
+Run `clstr list` to see all available challenges. The [distributed key-value store](/kv-store/) is the first project in clstr.io's distributed systems series.
 
 ### Scaffolding
 
-Run `clstr init kv-store --language go` to create a new challenge directory with:
+Run `clstr init kv-store --language <lang>` to create a new challenge directory with:
 
 - `Dockerfile`   - Builds and runs your server in a container
 - `README.md`   - Challenge overview and requirements
@@ -34,11 +34,11 @@ Write your implementation in any language (Go, Rust, Python, whatever), then upd
 
 Run `clstr test`. Tests are black-box: they interact with your system only through HTTP and can't inspect internals, read your data files, or access implementation state.
 
-Depending on the stage, tests will kill nodes (SIGKILL), partition nodes off from each other to simulate network splits, and verify your system recovers correctly: elects a new leader, refuses writes without quorum, recovers committed data on restart. You're tested on behavior under failure conditions, not just the happy path.
+Depending on the stage, tests will kill nodes (`SIGKILL`), partition nodes off from each other to simulate network splits, and verify your system recovers correctly: elects a new leader, refuses writes without quorum, recovers committed data on restart. You're tested on behavior under failure conditions, not just the happy path.
 
 ## Advance
 
-When you pass, run `clstr next` to unlock the next stage. Each stage builds on the previous one, gradually adding complexity. CI runs `clstr test --so-far` on every push, so your implementation must continue satisfying all earlier stages as you advance.
+When you pass, run `clstr next` to unlock the next stage. Each stage builds on the previous one, gradually adding complexity. [CI](/guides/ci-cd/) runs `clstr test --so-far` on every push, so your implementation must continue satisfying all earlier stages as you advance.
 
 At any point, run `clstr status` to see your current progress and a link to the stage guide.
 

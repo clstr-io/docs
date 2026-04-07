@@ -3,7 +3,7 @@ title: Leader Election
 description: Implement Raft leader election to form a static 5-node cluster.
 ---
 
-Implement [Raft](https://raft.github.io/raft.pdf) leader election to form a static 5-node cluster that elects a single leader.
+In this stage, you'll implement [Raft](https://raft.github.io/raft.pdf) leader election across a static 5-node cluster.
 
 ## Cluster Formation
 
@@ -14,15 +14,15 @@ ADDR=10.0.42.101:8080
 PEERS=10.0.42.102:8080,10.0.42.103:8080,10.0.42.104:8080,10.0.42.105:8080
 ```
 
-`ADDR` is this node's own address. `PEERS` is a comma-separated list of the other nodes' addresses. Each node listens on port `8080`. The cluster is static; membership doesn't change in this stage.
+`ADDR` is this node's own address and ID. `PEERS` is a comma-separated list of the other nodes' addresses. Each node listens on port `8080`. The cluster is static: membership doesn't change in this stage.
 
 ## Leader Election
 
 All nodes start as followers. If a follower doesn't receive heartbeats within the **election timeout** (randomized between **500-1,000ms**), it becomes a candidate and starts an election.
 
-These values are more generous than the Raft paper's suggested 150-300ms election timeout. Each node runs in a Docker container on a shared host, which adds container network latency and scheduling jitter on top of any GC or runtime pauses in your implementation. Higher values give varying implementations room to handle these issues without spurious elections.
+This is more generous than the Raft paper's suggested 150-300ms election timeout. Each node runs in a Docker container on a shared host, which adds container network latency and scheduling jitter on top of any GC or runtime pauses in your implementation. Higher values give varying implementations room to handle these issues without spurious elections.
 
-Candidates request votes from other nodes. A candidate becomes leader if it receives votes from a majority ($\lceil\frac{n+1}{2}\rceil$ where $n$ is the cluster size; 3 votes for a 5-node cluster). Each node grants at most one vote per term.
+Candidates request votes from other nodes. A candidate becomes leader if it receives votes from a majority ($\lceil\frac{n+1}{2}\rceil$ where $n$ is the cluster size, e.g., 3 votes in a 5-node cluster). Each node grants at most one vote per term.
 
 Terms act as a [logical clock](https://en.wikipedia.org/wiki/Logical_clock). When a node discovers a higher term, it immediately updates its term and reverts to follower.
 
@@ -43,19 +43,17 @@ HTTP/1.1 307 Temporary Redirect
 Location: http://10.0.42.101:8080/kv/mykey
 ```
 
-If no leader is known, return `503 Service Unavailable`.
+Nodes that don't yet know the leader return `503 Service Unavailable`.
 
-## Persistence
+## Storage
 
-Persist `currentTerm` and `votedFor` to disk before responding to any RPC that changes them. Use `fsync` to ensure durability.
-
-State must survive crashes and restarts. A node that crashes and restarts should resume with its persisted state.
+Persist `currentTerm` and `votedFor` to disk before responding to any RPC that changes them. Use `fsync` to ensure durability. Without this, a node that restarts could grant a second vote in the same term, or accept RPCs with a stale term, violating Raft's safety guarantees.
 
 ## API
 
 ### POST /raft/request-vote
 
-`RequestVote` RPC that is invoked by candidates to gather votes during leader election.
+Invoked by candidates to gather votes during leader election.
 
 ```
 POST /raft/request-vote
@@ -84,7 +82,7 @@ POST /raft/request-vote
 
 ### POST /raft/append-entries
 
-`AppendEntries` RPC that is used for heartbeats (empty entries) to maintain leader authority.
+Used for heartbeats (empty entries) to maintain leader authority.
 
 ```
 POST /raft/append-entries
@@ -162,7 +160,7 @@ PASSED ✓
 Run 'clstr next' to advance to the next stage.
 ```
 
-Example failure:
+**Example failure:**
 
 ```console
 $ clstr test leader-election
@@ -204,7 +202,7 @@ Read the guide: https://clstr.io/kv-store/leader-election
 
 ### Network Partitions
 
-Partition tests use `iptables` DROP rules applied directly inside each container to cut traffic between groups of nodes. Rules are bidirectional, so a partitioned node can neither send to nor receive from nodes in the other group. When the partition heals, all rules are flushed on every node to restore full connectivity.
+Partition tests use `iptables DROP` rules applied directly inside each container to cut traffic between groups of nodes. Rules are bidirectional, so a partitioned node can neither send to nor receive from nodes in the other group. When the partition heals, all rules are flushed on every node to restore full connectivity.
 
 Your implementation doesn't need to do anything special to support this. Partitions are transparent at the network level: RPCs to unreachable nodes will time out or be refused.
 
@@ -267,8 +265,6 @@ Received RequestVote from 10.0.42.101:8080, stepping down in term 4
 Voted for 10.0.42.101:8080 in term 4
 Received heartbeat from 10.0.42.101:8080, following in term 4
 ```
-
-Add your own logging to help trace election and heartbeat activity across nodes.
 
 ## Resources
 

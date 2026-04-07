@@ -16,7 +16,7 @@ This installs `clstr` to your `$GOPATH/bin` directory. Make sure it's in your `$
 You can also install a specific version using tags (see [available versions](https://github.com/clstr-io/clstr/tags)):
 
 ```console
-$ go install github.com/clstr-io/clstr/cmd/clstr@v0.4.0
+$ go install github.com/clstr-io/clstr/cmd/clstr@v0.4.14
 ```
 
 #### Update
@@ -46,7 +46,7 @@ Available challenges:
 
   kv-store             - Distributed Key-Value Store (8 stages)
 
-Start with: clstr init <challenge-name>
+Start with: clstr init <challenge> --language <lang>
 ```
 
 ## Quick Start
@@ -64,7 +64,7 @@ Commands support short aliases: `clstr i`, `clstr t`, `clstr n`, `clstr s`, and 
 ### 1. Start a Challenge
 
 ```console
-$ clstr init <challenge> [path]
+$ clstr init <challenge> --language <lang> [path]
 ```
 
 Creates a new challenge directory with:
@@ -72,9 +72,6 @@ Creates a new challenge directory with:
 - `README.md`   - Challenge overview and requirements
 - `clstr.yaml`  - Tracks your progress
 - `.gitignore`  - Files to .gitignore
-
-**Flags:**
-- `--language`, `--lang`, `-l` - Language to generate a `Dockerfile` for (e.g. `go`, `python`, `rust`)
 
 **Examples:**
 
@@ -116,7 +113,7 @@ PUT http://127.0.0.1:45123/kv/ "foo"
 Read the guide: https://clstr.io/kv-store/http-api
 ```
 
-Fix the issues, then run `clstr test` again. The CLI is designed for quick iteration, just keep running `clstr test` as you make changes.
+Fix the error, then run `clstr test` again. The CLI is designed for quick iteration, just keep running `clstr test` as you make changes.
 
 ### 3. Advance
 
@@ -147,19 +144,14 @@ Creates a new challenge in the specified directory (or current directory if not 
 
 Runs tests for the current stage (from `clstr.yaml`) or a specific stage if provided.
 
-```console
-$ clstr test                # Test current stage
-$ clstr test persistence    # Test specific stage
-```
-
 **Flags:**
 - `--so-far` - Test all stages up to and including the specified stage
 
 ```console
-$ clstr test persistence --so-far    # Test all stages from http-api through persistence
+$ clstr test                           # Test current stage
+$ clstr test leader-election           # Test specific stage
+$ clstr test leader-election --so-far  # Test all stages up to & including leader-election
 ```
-
-This is useful for regression testing to ensure earlier stages still pass as you progress through the challenge.
 
 ### `clstr logs`
 
@@ -249,5 +241,3 @@ The state file tracks your progress with a simple format:
 challenge: kv-store
 stage: persistence
 ```
-
-Format: `<challenge>:<stage>`

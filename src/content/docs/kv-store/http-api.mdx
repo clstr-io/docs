@@ -91,11 +91,14 @@ The test harness polls this endpoint after starting each node and waits for a `2
 
 Unsupported HTTP methods on any endpoint should return:
 
-- 405 Method Not Allowed: Return `method not allowed`
+```
+405
+method not allowed
+```
 
 ## Storage
 
-A simple in-memory [map/dictionary](https://en.wikipedia.org/wiki/Associative_array) is sufficient for this stage; the dataset fits in memory and you'll add persistence in the next stage. Make sure your store handles concurrent requests safely; the tests will hit multiple endpoints in parallel.
+An in-memory [map/dictionary](https://en.wikipedia.org/wiki/Associative_array) is sufficient for this stage. The dataset fits in memory and you'll add persistence later. Make sure your store handles concurrent requests safely, since some tests issue requests in parallel.
 
 ### Data Model
 
@@ -111,7 +114,7 @@ Keys must contain only alphanumeric plus `:`, `_`, `.`, and `-` characters. Exam
 
 #### Values
 
-Values are stored as UTF-8 encoded text and can contain:
+Values are UTF-8 encoded text and can contain:
 
 - Unicode characters like 😊
 - Spaces and special symbols
