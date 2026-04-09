@@ -16,6 +16,8 @@ PEERS=10.0.42.102:8080,10.0.42.103:8080,10.0.42.104:8080,10.0.42.105:8080
 
 `ADDR` is this node's own address and ID. `PEERS` is a comma-separated list of the other nodes' addresses. Each node listens on port `8080`. The cluster is static: membership doesn't change in this stage.
 
+When `PEERS` is empty or unset, your node should still work on its own. You can verify this with `clstr test --so-far`.
+
 ## Leader Election
 
 All nodes start as followers. If a follower doesn't receive heartbeats within the **election timeout** (randomized between **500-1,000ms**), it becomes a candidate and starts an election.
