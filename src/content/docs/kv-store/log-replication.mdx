@@ -13,6 +13,7 @@ Extends the heartbeat RPC from leader election to carry actual log entries.
 
 ```
 POST /raft/append-entries
+Content-Type: application/json
 
 {
   "term": 3,
@@ -29,6 +30,8 @@ POST /raft/append-entries
 ----
 
 200
+Content-Type: application/json
+
 {
   "term": 3,
   "success": true
@@ -50,6 +53,8 @@ GET /log
 ----
 
 200
+Content-Type: application/json
+
 {
   "entries": [
     { "index": 1, "term": 1, "command": "PUT foo bar" },
