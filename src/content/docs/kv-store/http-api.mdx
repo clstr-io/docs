@@ -15,6 +15,7 @@ Add or update a key-value pair in the store.
 
 ```
 PUT /kv/{key}
+Content-Type: text/plain
 
 hello world
 
@@ -23,9 +24,13 @@ hello world
 200
 
 400
+Content-Type: text/plain
+
 key cannot be empty
 
 400
+Content-Type: text/plain
+
 value cannot be empty
 ```
 
@@ -41,9 +46,13 @@ GET /kv/{key}
 ----
 
 200
+Content-Type: text/plain
+
 hello world
 
 404
+Content-Type: text/plain
+
 key not found
 ```
 
@@ -93,6 +102,8 @@ Unsupported HTTP methods on any endpoint should return:
 
 ```
 405
+Content-Type: text/plain
+
 method not allowed
 ```
 
@@ -152,9 +163,6 @@ Your server's output (`stdout`/`stderr`) is captured during testing and viewable
 
 ```console
 $ clstr logs n1
-
-================ STARTED ================
-
 Server listening on 0.0.0.0:8080
 PUT /kv/kenya:capital accepted, value=Nairobi
 GET /kv/kenya:capital returning 200

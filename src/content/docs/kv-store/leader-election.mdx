@@ -34,6 +34,8 @@ Leaders send `AppendEntries` RPC heartbeats every **100ms** to maintain authorit
 
 If a follower doesn't receive heartbeats within the election timeout, it starts a new election.
 
+If a leader fails to receive acknowledgments from a quorum of nodes within **500ms** (the minimum election timeout), it steps down to follower and clears its known leader, rather than continuing to serve requests it cannot commit.
+
 ## Client Requests
 
 Leaders accept `GET`, `PUT`, and `DELETE` requests from the HTTP API stage.
@@ -59,6 +61,7 @@ Invoked by candidates to gather votes during leader election.
 
 ```
 POST /raft/request-vote
+Content-Type: application/json
 
 {
   "term": 3,
@@ -70,6 +73,8 @@ POST /raft/request-vote
 ----
 
 200
+Content-Type: application/json
+
 {
   "term": 3,
   "vote-granted": true
@@ -88,6 +93,7 @@ Used for heartbeats (empty entries) to maintain leader authority.
 
 ```
 POST /raft/append-entries
+Content-Type: application/json
 
 {
   "term": 3,
@@ -101,6 +107,8 @@ POST /raft/append-entries
 ----
 
 200
+Content-Type: application/json
+
 {
   "term": 3,
   "success": true
@@ -123,6 +131,8 @@ GET /cluster/info
 ----
 
 200
+Content-Type: application/json
+
 {
   "id": "10.0.42.101:8080",
   "role": "leader",
@@ -146,15 +156,15 @@ Your server will be started as a 5-node cluster, with its own address in `ADDR` 
 $ clstr test leader-election
 Testing leader-election: Cluster Elects and Maintains Leader
 
-✓ /cluster/info Returns Pre-Election State
+✓ /cluster/info Returns Cluster State
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
 ✓ Leader Maintains Authority via Heartbeats
 ✓ Followers Redirect to Leader
 ✓ Leader Handles KV Operations
 ✓ New Leader Elected After Leader Crash
-✓ Service Unavailable During Election
 ✓ Partition Enforces Quorum
+✓ Leaderless Nodes Return 503
 ✓ Cluster Converges After Partition Heals
 
 PASSED ✓
@@ -168,14 +178,13 @@ Run 'clstr next' to advance to the next stage.
 $ clstr test leader-election
 Testing leader-election: Cluster Elects and Maintains Leader
 
-✓ /cluster/info Returns Pre-Election State
+✓ /cluster/info Returns Cluster State
 ✓ Leader Election Completes
 ✓ Exactly One Leader Per Term
 ✓ Leader Maintains Authority via Heartbeats
 ✓ Followers Redirect to Leader
 ✓ Leader Handles KV Operations
 ✓ New Leader Elected After Leader Crash
-✓ Service Unavailable During Election
 ✗ Partition Enforces Quorum
 
 GET - 1 of 2 nodes passed (expected all 2)
@@ -214,9 +223,6 @@ Each node's output (`stdout`/`stderr`) is captured during testing and viewable w
 
 ```console
 $ clstr logs n1
-
-================ STARTED ================
-
 Node started addr=10.0.42.101:8080
 Voted for 10.0.42.104:8080 in term 1
 Received heartbeat from 10.0.42.104:8080, following in term 1
@@ -246,9 +252,6 @@ Became leader in term 4
 
 ```console
 $ clstr logs n4
-
-================ STARTED ================
-
 Node started addr=10.0.42.104:8080
 Election timeout, starting election for term 1
 Received vote from 10.0.42.101:8080 (2/5)
