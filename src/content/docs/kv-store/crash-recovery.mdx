@@ -80,7 +80,7 @@ Testing crash-recovery: Data Survives SIGKILL
 
 PASSED ✓
 
-Run 'clstr next' to advance to the next stage.
+Run clstr next to advance to the next stage.
 ```
 
 The tests will:
@@ -92,26 +92,23 @@ The tests will:
 
 ## Debugging
 
-Your server's output (`stdout`/`stderr`) is captured during testing and viewable with `clstr logs`. The `KILLED` and `STARTED` markers show exactly when the crash and restart occurred:
+Your server's output (`stdout`/`stderr`) is captured during testing and viewable with `clstr logs`. The `[KILL]` and `[START]` events show exactly when the crash and restart occurred:
 
 ```console
 $ clstr logs n1
-Server listening on 0.0.0.0:8080
-PUT /kv/canada:capital accepted, value=Ottawa
-PUT /kv/brazil:capital accepted, value=Brasilia
-PUT /kv/australia:capital accepted, value=Canberra
-PUT /kv/japan:capital accepted, value=Tokyo
-Appended 4 entries to /app/data/wal.log
-
-================ KILLED ================
-
-
-================ STARTED ================
-
-Server listening on 0.0.0.0:8080
-Replaying 4 entries from /app/data/wal.log
-GET /kv/canada:capital returning 200
-GET /kv/brazil:capital returning 200
-GET /kv/australia:capital returning 200
-GET /kv/japan:capital returning 200
+[n1]  +0.000s     [START]
+[n1]  +0.127s     Server listening on 0.0.0.0:8080
+[n1]  +0.841s     PUT /kv/canada:capital accepted, value=Ottawa
+[n1]  +1.024s     PUT /kv/brazil:capital accepted, value=Brasilia
+[n1]  +1.209s     PUT /kv/australia:capital accepted, value=Canberra
+[n1]  +1.391s     PUT /kv/japan:capital accepted, value=Tokyo
+[n1]  +1.392s     Appended 4 entries to /app/data/wal.log
+[n1]  +1.393s     [KILL]
+[n1]  +5.001s     [START]
+[n1]  +5.127s     Server listening on 0.0.0.0:8080
+[n1]  +5.128s     Replaying 4 entries from /app/data/wal.log
+[n1]  +5.617s     GET /kv/canada:capital returning 200
+[n1]  +5.801s     GET /kv/brazil:capital returning 200
+[n1]  +5.984s     GET /kv/australia:capital returning 200
+[n1]  +6.168s     GET /kv/japan:capital returning 200
 ```

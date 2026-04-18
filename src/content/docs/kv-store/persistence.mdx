@@ -48,7 +48,7 @@ Testing persistence: Data Survives SIGTERM
 
 PASSED ✓
 
-Run 'clstr next' to advance to the next stage.
+Run clstr next to advance to the next stage.
 ```
 
 The tests will:
@@ -60,24 +60,22 @@ The tests will:
 
 ## Debugging
 
-Your server's output (`stdout`/`stderr`) is captured during testing and viewable with `clstr logs`. The `STOPPED` and `STARTED` markers show exactly when the server was restarted:
+Your server's output (`stdout`/`stderr`) is captured during testing and viewable with `clstr logs`. The `[STOP]` and `[START]` events show exactly when the server was restarted:
 
 ```console
 $ clstr logs n1
-Server listening on 0.0.0.0:8080
-PUT /kv/kenya:capital accepted, value=Nairobi
-PUT /kv/germany:capital accepted, value=Berlin
-Flushing 2 keys to /app/data/store.json
-
-================ STOPPED ================
-
-
-================ STARTED ================
-
-Server listening on 0.0.0.0:8080
-Loaded 2 keys from /app/data/store.json
-GET /kv/kenya:capital returning 200
-GET /kv/germany:capital returning 200
+[n1]  +0.000s     [START]
+[n1]  +0.127s     Server listening on 0.0.0.0:8080
+[n1]  +0.841s     PUT /kv/kenya:capital accepted, value=Nairobi
+[n1]  +1.024s     PUT /kv/germany:capital accepted, value=Berlin
+[n1]  +1.025s     Flushing 2 keys to /app/data/store.json
+[n1]  +1.026s     [STOP]
+[n1]  +1.089s     SIGTERM received, shutting down
+[n1]  +5.001s     [START]
+[n1]  +5.127s     Server listening on 0.0.0.0:8080
+[n1]  +5.128s     Loaded 2 keys from /app/data/store.json
+[n1]  +5.617s     GET /kv/kenya:capital returning 200
+[n1]  +5.801s     GET /kv/germany:capital returning 200
 ```
 
 ## Resources
