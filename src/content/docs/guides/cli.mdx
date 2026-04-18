@@ -54,6 +54,7 @@ Start with: clstr init <challenge> --language <lang>
 ```console
 $ clstr init kv-store --language go    # Create challenge in current directory
 $ clstr test                           # Test your implementation
+$ clstr logs                           # View interleaved logs from all nodes
 $ clstr next                           # Advance to the next stage
 ```
 
@@ -96,14 +97,14 @@ $ clstr test
 ```
 PASSED ✓
 
-Run 'clstr next' to advance to the next stage.
+Run clstr next to advance to the next stage.
 ```
 
 **When tests fail:**
 ```
 FAILED ✗
 
-PUT http://127.0.0.1:45123/kv/ "foo"
+PUT http://n1:8080/kv/ "foo"
   Expected: "key cannot be empty"
   Actual: ""
 
@@ -155,40 +156,46 @@ $ clstr test leader-election --so-far  # Test all stages up to & including leade
 
 ### `clstr logs`
 
-**Usage:** `clstr logs <node>`
+**Usage:** `clstr logs [node...]`
 
-Shows the captured logs for a node after a test run. Logs persist across restarts within a run, so you see the full history even after a crash or partition.
+Shows logs from all nodes interleaved by timestamp, with relative times from the first log entry. Logs persist across restarts within a run, so lifecycle events (starts, stops, kills, restarts, partitions) appear inline in the timeline alongside application logs.
+
+With no arguments shows all nodes. Pass node names to filter:
 
 ```console
-$ clstr logs n1
-Node started addr=10.0.42.101:8080
-Voted for 10.0.42.104:8080 in term 1
-Election timeout, starting election for term 2
-Received vote from 10.0.42.105:8080 (2/3)
-Received vote from 10.0.42.102:8080 (3/3)
-Became leader in term 2
+$ clstr logs           # All nodes interleaved
+$ clstr logs n2 n4     # Only n2 and n4
+```
 
-================ KILLED ================
+**Example output:**
 
-
-================ STARTED ================
-
-Node started addr=10.0.42.101:8080
-Received heartbeat from 10.0.42.102:8080, stepping down in term 3
-
-================ PARTITIONED FROM: n3, n4, n5 ================
-
-Election timeout, starting election for term 4
-Received vote from 10.0.42.102:8080 (2/3)
-Election timeout, starting election for term 5
-Received vote from 10.0.42.102:8080 (2/3)
-
-================ PARTITION HEALED ================
-
-Election timeout, starting election for term 6
-Received vote from 10.0.42.102:8080 (2/3)
-Received vote from 10.0.42.103:8080 (3/3)
-Became leader in term 6
+```
+[n1]  +0.000s     [START]
+[n2]  +0.000s     [START]
+[n3]  +0.000s     [START]
+[n1]  +0.124s     Node started addr=10.0.42.101:8080
+[n2]  +0.131s     Node started addr=10.0.42.102:8080
+[n3]  +0.139s     Node started addr=10.0.42.103:8080
+[n2]  +2.341s     Became leader term=1
+[n1]  +2.343s     Received heartbeat from 10.0.42.102:8080
+[n3]  +2.343s     Received heartbeat from 10.0.42.102:8080
+[n2]  +5.000s     [KILL]
+[n1]  +5.032s     Election timeout, starting election term=2
+[n3]  +5.034s     Election timeout, starting election term=2
+[n1]  +5.187s     Became leader term=2
+[n3]  +5.188s     Received heartbeat from 10.0.42.101:8080
+[n2]  +8.002s     [START]
+[n2]  +8.214s     Received heartbeat from 10.0.42.101:8080, stepping down term=2
+[n3]  +9.001s     [RESTART]
+[n3]  +9.244s     Node started addr=10.0.42.103:8080
+[n3]  +9.251s     Received heartbeat from 10.0.42.101:8080
+[n1]  +10.001s    [PARTITIONED FROM: n3, n4, n5]
+[n1]  +11.543s    Election timeout, starting election term=3
+[n1]  +12.891s    Election timeout, starting election term=4
+[n3]  +12.011s    Election timeout, starting election term=3
+[n3]  +12.187s    Became leader term=3
+[n1]  +14.002s    [PARTITION HEALED]
+[n1]  +14.215s    Received heartbeat from 10.0.42.103:8080, stepping down term=3
 ```
 
 ### `clstr next`
@@ -221,7 +228,7 @@ Progress:
 
 Read the guide: https://clstr.io/kv-store/leader-election
 
-Implement leader-election, then run 'clstr test'.
+Implement leader-election, then run clstr test.
 ```
 
 ### `clstr list`

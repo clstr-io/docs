@@ -169,7 +169,7 @@ Testing leader-election: Cluster Elects and Maintains Leader
 
 PASSED ✓
 
-Run 'clstr next' to advance to the next stage.
+Run clstr next to advance to the next stage.
 ```
 
 **Example failure:**
@@ -188,7 +188,7 @@ Testing leader-election: Cluster Elects and Maintains Leader
 ✗ Partition Enforces Quorum
 
 GET - 1 of 2 nodes passed (expected all 2)
-  http://127.0.0.1:8003/cluster/info (n1) → 200
+  http://n1:8080/cluster/info → 200
     Expected field "role": one of [follower, candidate]
       {
         "id": "10.0.42.101:8080",
@@ -219,56 +219,46 @@ Your implementation doesn't need to do anything special to support this. Partiti
 
 ## Debugging
 
-Each node's output (`stdout`/`stderr`) is captured during testing and viewable with `clstr logs`. Logs persist across restarts within a run, so you see the full history even after a crash or partition:
+Each node's output (`stdout`/`stderr`) is captured during testing and viewable with `clstr logs`. Logs persist across restarts within a run, so you see the full history even after a crash or partition. Use `clstr logs` to see all nodes interleaved, or pass node names to filter:
 
 ```console
 $ clstr logs n1
-Node started addr=10.0.42.101:8080
-Voted for 10.0.42.104:8080 in term 1
-Received heartbeat from 10.0.42.104:8080, following in term 1
-
-================ KILLED ================
-
-
-================ STARTED ================
-
-Node started addr=10.0.42.101:8080
-Received heartbeat from 10.0.42.104:8080, following in term 1
-
-================ PARTITIONED FROM: n3, n4, n5 ================
-
-Heartbeat timeout, starting election for term 2
-Received vote from 10.0.42.102:8080 (2/5)
-Heartbeat timeout, starting election for term 3
-Received vote from 10.0.42.102:8080 (2/5)
-
-================ PARTITION HEALED ================
-
-Election timeout, starting election for term 4
-Received vote from 10.0.42.102:8080 (2/5)
-Received vote from 10.0.42.103:8080 (3/5)
-Became leader in term 4
+[n1]  +0.000s     [START]
+[n1]  +0.127s     Node started addr=10.0.42.101:8080
+[n1]  +0.241s     Voted for 10.0.42.104:8080 in term 1
+[n1]  +0.651s     Received heartbeat from 10.0.42.104:8080, following in term 1
+[n1]  +5.001s     [KILL]
+[n1]  +7.214s     [START]
+[n1]  +7.341s     Node started addr=10.0.42.101:8080
+[n1]  +7.618s     Received heartbeat from 10.0.42.104:8080, following in term 1
+[n1]  +8.002s     [PARTITIONED FROM: n3, n4, n5]
+[n1]  +8.603s     Heartbeat timeout, starting election for term 2
+[n1]  +8.611s     Received vote from 10.0.42.102:8080 (2/5)
+[n1]  +9.216s     Heartbeat timeout, starting election for term 3
+[n1]  +9.224s     Received vote from 10.0.42.102:8080 (2/5)
+[n1]  +10.002s    [PARTITION HEALED]
+[n1]  +10.318s    Election timeout, starting election for term 4
+[n1]  +10.326s    Received vote from 10.0.42.102:8080 (2/5)
+[n1]  +10.327s    Received vote from 10.0.42.103:8080 (3/5)
+[n1]  +10.327s    Became leader in term 4
 ```
 
 ```console
 $ clstr logs n4
-Node started addr=10.0.42.104:8080
-Election timeout, starting election for term 1
-Received vote from 10.0.42.101:8080 (2/5)
-Received vote from 10.0.42.102:8080 (3/5)
-Became leader in term 1
-
-================ PARTITIONED FROM: n1, n2 ================
-
-Heartbeat to 10.0.42.101:8080 failed
-Heartbeat to 10.0.42.102:8080 failed
-Maintaining leadership in term 1, majority reachable
-
-================ PARTITION HEALED ================
-
-Received RequestVote from 10.0.42.101:8080, stepping down in term 4
-Voted for 10.0.42.101:8080 in term 4
-Received heartbeat from 10.0.42.101:8080, following in term 4
+[n4]  +0.000s     [START]
+[n4]  +0.042s     Node started addr=10.0.42.104:8080
+[n4]  +0.151s     Election timeout, starting election for term 1
+[n4]  +0.163s     Received vote from 10.0.42.101:8080 (2/5)
+[n4]  +0.165s     Received vote from 10.0.42.102:8080 (3/5)
+[n4]  +0.165s     Became leader in term 1
+[n4]  +8.002s     [PARTITIONED FROM: n1, n2]
+[n4]  +8.677s     Heartbeat to 10.0.42.101:8080 failed
+[n4]  +8.678s     Heartbeat to 10.0.42.102:8080 failed
+[n4]  +8.678s     Maintaining leadership in term 1, majority reachable
+[n4]  +10.002s    [PARTITION HEALED]
+[n4]  +10.219s    Received RequestVote from 10.0.42.101:8080, stepping down in term 4
+[n4]  +10.220s    Voted for 10.0.42.101:8080 in term 4
+[n4]  +10.628s    Received heartbeat from 10.0.42.101:8080, following in term 4
 ```
 
 ## Resources

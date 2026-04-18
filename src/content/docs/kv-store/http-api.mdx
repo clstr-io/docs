@@ -154,7 +154,7 @@ Testing http-api: Store and Retrieve Data
 
 PASSED ✓
 
-Run 'clstr next' to advance to the next stage.
+Run clstr next to advance to the next stage.
 ```
 
 ## Debugging
@@ -183,7 +183,7 @@ Testing http-api: Store and Retrieve Data
 ✓ GET Returns Stored Values
 ✗ GET Rejects Missing and Invalid Keys
 
-GET http://127.0.0.1:42409/kv/nonexistent:key (n1) → 404
+GET http://n1:8080/kv/nonexistent:key → 404
   Expected response: matching pattern /^key not found\n?$/
   Actual response:
 
