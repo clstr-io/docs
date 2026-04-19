@@ -133,6 +133,32 @@ do.GET(do.AtLeastOneNode(), "/cluster/info").
     Run()
 ```
 
+### `do.ExceptNodes(names...)`
+
+Passes when every node except the named ones satisfies the check. Useful for asserting on all followers when you know the leader:
+
+```go
+leaderNode, _ := findLeader(do)
+
+do.GET(do.ExceptNodes(leaderNode), "/cluster/info").
+    JSON("role", Is("follower")).
+    Run()
+```
+
+### `do.Names(sel)`
+
+Resolves a `NodeSelector` to a `[]string` of node names. Useful when you need to feed a selector's result into another selector:
+
+```go
+leaderNode, _ := findLeader(do)
+
+// Check that exactly one of the non-leader nodes becomes the new leader
+do.GET(do.ExactlyOneNode(do.Names(do.ExceptNodes(leaderNode))...), "/cluster/info").
+    Eventually(3 * time.Second).
+    JSON("role", Is("leader")).
+    Run()
+```
+
 ### `do.Nodes()`
 
 Returns the names of all nodes in the cluster. Useful when you need to iterate nodes manually:
@@ -398,6 +424,46 @@ Restores full connectivity on every node:
 
 ```go
 do.Heal()
+```
+
+### `do.Impair(sel, impairments...)`
+
+Applies one or more network impairments to outgoing traffic on the selected nodes. Impairments are combined into a single `tc netem` command. Call `do.Repair()` to remove them.
+
+```go
+// Add 100ms delay to all nodes
+do.Impair(do.AllNodes(), Delay(100*time.Millisecond))
+
+// Add delay with jitter to a single node
+do.Impair(Node("n1"), Delay(100*time.Millisecond, 20*time.Millisecond))
+
+// Combine impairments
+do.Impair(do.AllNodes(), Delay(50*time.Millisecond), Loss(10))
+
+// All nodes except the leader
+do.Impair(do.ExceptNodes(leaderNode), Loss(20))
+```
+
+Available impairments:
+
+- **`Delay(d, jitter...)`** : adds fixed latency. Optional jitter uses a normal distribution with 25% correlation: `Delay(100*time.Millisecond, 20*time.Millisecond)`.
+- **`Loss(pct)`** : randomly drops `pct`% of packets (25% correlation): `Loss(10)`.
+- **`Duplicate(pct)`** : sends `pct`% of packets twice: `Duplicate(1)`.
+- **`Reorder(pct)`** : delivers `pct`% of packets out of order (25% correlation). Must be combined with `Delay`: `Reorder(25)`.
+
+### `do.Repair(sel...)`
+
+Removes `tc netem` impairments from the selected nodes. With no argument, repairs all nodes:
+
+```go
+// Repair all nodes
+do.Repair()
+
+// Repair a specific node
+do.Repair(Node("n1"))
+
+// Repair all except the leader
+do.Repair(do.ExceptNodes(leaderNode))
 ```
 
 ### `do.Fetch(name, path)`
