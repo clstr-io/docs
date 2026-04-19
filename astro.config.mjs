@@ -75,6 +75,10 @@ export default defineConfig({
         starlight({
         title: 'clstr.io',
         logo: { src: './src/assets/logo.svg' },
+        favicon: '/favicon.svg',
+        head: [
+            { tag: 'link', attrs: { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' } },
+        ],
         plugins: [starlightKatex()],
         components: {
             PageTitle: './src/components/PageTitle.astro',
