@@ -166,6 +166,8 @@ Testing leader-election: Cluster Elects and Maintains Leader
 ✓ Partition Enforces Quorum
 ✓ Leaderless Nodes Return 503
 ✓ Cluster Converges After Partition Heals
+✓ Slow Leader Steps Down and Cluster Re-elects
+✓ Election Completes Under Packet Loss
 
 PASSED ✓
 
@@ -215,7 +217,13 @@ Read the guide: https://clstr.io/kv-store/leader-election
 
 Partition tests use `iptables DROP` rules applied directly inside each container to cut traffic between groups of nodes. Rules are bidirectional, so a partitioned node can neither send to nor receive from nodes in the other group. When the partition heals, all rules are flushed on every node to restore full connectivity.
 
-Your implementation doesn't need to do anything special to support this. Partitions are transparent at the network level: RPCs to unreachable nodes will time out or be refused.
+Your implementation doesn't need to do anything special. When a node is partitioned, RPCs to it will time out or fail at the TCP level.
+
+### Network Impairments
+
+Some tests use `tc netem` to simulate degraded network conditions rather than a hard partition. The slow leader test delays the leader's outgoing traffic past the election timeout, causing followers to time out and hold a new election. The packet loss test introduces 20% random packet loss across all nodes while the leader restarts, verifying that candidates can still collect a majority of votes.
+
+Your implementation doesn't need to do anything special. Impairments are applied at the network level, so RPCs will be slower or occasionally fail, but no application-level changes are required.
 
 ## Debugging
 
@@ -241,6 +249,10 @@ $ clstr logs n1
 [n1]  +10.326s    Received vote from 10.0.42.102:8080 (2/5)
 [n1]  +10.327s    Received vote from 10.0.42.103:8080 (3/5)
 [n1]  +10.327s    Became leader in term 4
+[n1]  +13.001s    [IMPAIRED: packet delay 2s]
+[n1]  +15.214s    [REPAIRED]
+[n1]  +15.381s    Received heartbeat from 10.0.42.103:8080, stepping down in term 5
+[n1]  +15.382s    Following 10.0.42.103:8080 in term 5
 ```
 
 ```console
@@ -259,6 +271,12 @@ $ clstr logs n4
 [n4]  +10.219s    Received RequestVote from 10.0.42.101:8080, stepping down in term 4
 [n4]  +10.220s    Voted for 10.0.42.101:8080 in term 4
 [n4]  +10.628s    Received heartbeat from 10.0.42.101:8080, following in term 4
+[n4]  +13.001s    [IMPAIRED: packet loss 20%]
+[n4]  +13.824s    Lost contact with leader, starting election for term 6
+[n4]  +13.901s    Received vote from 10.0.42.102:8080 (2/5)
+[n4]  +14.003s    Received vote from 10.0.42.103:8080 (3/5)
+[n4]  +14.003s    Became leader in term 6
+[n4]  +16.001s    [REPAIRED]
 ```
 
 ## Resources
