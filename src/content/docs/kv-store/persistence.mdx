@@ -1,34 +1,33 @@
 ---
 title: Persistence
-description: Add persistence so data survives clean shutdowns and server restarts.
+description: Make your key-value store survive clean shutdowns by saving state to disk and restoring it when the server restarts.
 ---
 
-In this stage, you'll add persistence to your key-value store.
-Data should survive clean shutdowns and be restored when the server restarts.
+In this stage, you'll make your key-value store survive clean shutdowns. When the server restarts, it picks up exactly where it left off.
 
 ## Graceful Shutdown
 
 When your server receives a termination signal (`SIGTERM` or `SIGINT`), it should:
 
-1. Wait for in-flight requests to complete (within 5 seconds)
-2. Save all key-value pairs to disk
-3. Exit with status code `0`
+- Wait for in-flight requests to complete (within 5 seconds)
+- Save all key-value pairs to disk
+- Exit with status code `0`
 
 ## Startup Recovery
 
 When your server starts, it should:
 
-1. Check the `DATA_DIR` environment variable for the data directory path
-2. Load any previously saved key-value pairs
-3. Continue serving requests with the restored data
+- Check the `DATA_DIR` environment variable for the data directory path
+- Load any previously saved key-value pairs
+- Continue serving requests with the restored data
 
 If no previous data exists, start with an empty store.
 
 ## Storage
 
-Save your in-memory state to disk during shutdown and restore it on startup. Create your data files in the directory given by the `DATA_DIR` environment variable. The serialization format and file naming are up to you - JSON, binary ([Protocol Buffers](https://protobuf.dev/), [MessagePack](https://msgpack.org/index.html), [BSON](https://bsonspec.org/), [gob](https://pkg.go.dev/encoding/gob), [pickle](https://docs.python.org/3/library/pickle.html)), plain text, whatever.
+Save your in-memory state to disk during shutdown and restore it on startup. Create your data files in the directory given by the `DATA_DIR` environment variable. The serialization format and file naming are up to you: JSON, binary ([Protocol Buffers](https://protobuf.dev/), [MessagePack](https://msgpack.org/index.html), [BSON](https://bsonspec.org/), [gob](https://pkg.go.dev/encoding/gob), [pickle](https://docs.python.org/3/library/pickle.html)), plain text, whatever.
 
-This approach survives clean shutdowns but not crashes. If the process dies unexpectedly, you'll lose any data that wasn't saved. That's fine for this stage, you'll add crash recovery in the next stage.
+This approach survives clean shutdowns but not crashes. If the process dies unexpectedly, you'll lose any data that wasn't saved. That's fine for this stage. You'll add crash recovery in the next one.
 
 ## Testing
 
@@ -53,10 +52,10 @@ Run clstr next to advance to the next stage.
 
 The tests will:
 
-1. Store data in your server (through HTTP API calls)
-2. Send `SIGTERM` to trigger graceful shutdown
-3. Restart your server
-4. Verify all data is still present
+- Store data in your server (through HTTP API calls)
+- Send `SIGTERM` to trigger graceful shutdown
+- Restart your server
+- Verify all data is still present
 
 ## Debugging
 
@@ -77,7 +76,3 @@ $ clstr logs n1
 [n1]  +5.617s     GET /kv/kenya:capital returning 200
 [n1]  +5.801s     GET /kv/germany:capital returning 200
 ```
-
-## Resources
-
-- [Designing Data-Intensive Applications Chapter 4: Encoding and Evolution](https://dataintensive.net/) by Martin Kleppmann

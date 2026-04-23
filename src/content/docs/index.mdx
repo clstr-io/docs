@@ -1,6 +1,6 @@
 ---
-title: clstr.io
-description: Learn distributed systems by building them from scratch.
+title: Distributed Systems Challenges
+description: Build real distributed systems from scratch, one stage at a time. Each stage is verified by tests that simulate network failures, crashes, and real-world conditions.
 template: splash
 next: false
 ---
@@ -9,10 +9,10 @@ import { Card, CardGrid, LinkButton, LinkCard } from '@astrojs/starlight/compone
 
 <div class="lp-hero">
   <h1 class="lp-title">Distributed systems,<br />from scratch.</h1>
-  <p class="lp-tagline">Build real distributed systems in any language. Each challenge breaks a complex system into stages, verified by tests that simulate network failures, crashes, and real-world conditions.</p>
+  <p class="lp-tagline">Build real distributed systems in any language. Each challenge breaks a complex system into stages and tests your implementation against network failures, crashes, and real-world conditions.</p>
   <div class="lp-ctas">
-    <LinkButton href="/kv-store/" icon="right-arrow">Get started</LinkButton>
-    <LinkButton href="/how-it-works/" variant="secondary">How it works</LinkButton>
+    <LinkButton href="/kv-store/" icon="right-arrow">Start Building</LinkButton>
+    <LinkButton href="/how-it-works/" variant="secondary">How It Works</LinkButton>
   </div>
 </div>
 
@@ -50,21 +50,21 @@ Run clstr next to advance to the next stage.
   <div class="lp-step">
     <span class="lp-step-num">01</span>
     <div>
-      <strong>Pick a challenge</strong>
+      <strong>Pick a Challenge</strong>
       <p>Each challenge is a real distributed system broken into stages. Start simple, add complexity one stage at a time.</p>
     </div>
   </div>
   <div class="lp-step">
     <span class="lp-step-num">02</span>
     <div>
-      <strong>Build in any language</strong>
+      <strong>Build in Any Language</strong>
       <p>Go, Rust, Python, whatever. Update the <code>Dockerfile</code> to build and start your server. The tests only care about behavior.</p>
     </div>
   </div>
   <div class="lp-step">
     <span class="lp-step-num">03</span>
     <div>
-      <strong>Run the tests</strong>
+      <strong>Run the Tests</strong>
       <p>Run <code>clstr test</code>. Tests simulate network failures, crashes, and real-world conditions against your implementation.</p>
     </div>
   </div>

@@ -1,7 +1,9 @@
 ---
 title: Writing Style
-description: Guidelines for writing clstr.io challenge documentation.
+description: Writing guidelines for clstr challenge documentation.
 ---
+
+Writing guidelines for clstr challenge documentation.
 
 ## Audience
 
@@ -19,25 +21,25 @@ Each new stage must be backwards compatible with all prior stages. CI runs `clst
 
 Constrain interfaces and contracts that affect testing or compatibility. Leave internal implementation details (data structures, algorithms, optimizations) to the reader's judgment.
 
-Link to external resources when you introduce concepts. Point to tutorials, papers, lectures, or reference implementations - whatever explains it best. Don't replicate explanations that already exist; point to the best resources and move on.
+Link to external resources when you introduce concepts. Point to tutorials, papers, lectures, or reference implementations: whatever explains it best. Don't replicate explanations that already exist; point to the best resources and move on.
 
 ## Voice & Tone
 
 Address the reader directly using second person ("you") and active voice. Write as if you're giving clear directions to a colleague, not lecturing from a podium. Use simple, everyday language.
 
-Get to the point immediately. Skip introductory context about why topics are important, your reader already has that context. Brief section transitions are fine, but avoid elaborate setup. Do explain the reasoning behind specific constraints or design choices you're imposing.
+Get to the point immediately. Skip introductory context about why topics are important. Your reader already has that context. Brief section transitions are fine, but avoid elaborate setup. Do explain the reasoning behind specific constraints or design choices you're imposing.
 
 Maintain a matter-of-fact tone. Reassurance and light tone are fine in introductions and conclusions, but keep the technical sections direct and free of cheerleading. An occasional emoji is fine.
 
 ## Formatting
 
-Structure each stage with a brief introduction (one or two sentences on what the reader will build), followed by precise specifications, implementation guidance, and testing instructions. Optionally include a debugging section with example test failures or debugging techniques. When showing failures, provide actionable guidance: expected versus actual output, then what to check or what might have gone wrong.
+Structure each stage with a brief introduction that orients the reader: what they're building, what it doesn't do yet, and optionally how it connects to what comes next. This is distinct from the "skip introductory context" rule, which applies to within-section prose, not stage openers. Follow the intro with precise specifications, implementation guidance, and testing instructions. Optionally include a debugging section with example test failures or debugging techniques. When showing failures, provide actionable guidance: expected versus actual output, then what to check or what might have gone wrong.
 
 When defining API contracts, data formats, or expected behaviors, be exact. Include complete endpoint specifications with methods, parameters, responses, and literal error messages. Specify data constraints explicitly. The goal is removing ambiguity about _what_ to build without prescribing _how_ to build it.
 
 Don't use callout blocks (:::note, :::tip, :::warning, etc). Embed important information in the surrounding prose instead.
 
-Use code blocks to show test invocations, command-line usage, and expected outputs - not implementation code or algorithms. Readers should see how to verify their work and what correct behavior looks like. When test behavior isn't obvious from output alone, briefly explain what the test does, especially when it affects implementation constraints (which signals, timing requirements, error conditions to handle).
+Use code blocks to show test invocations, command-line usage, and expected outputs: not implementation code or algorithms. Readers should see how to verify their work and what correct behavior looks like. When test behavior isn't obvious from output alone, briefly explain what the test does, especially when it affects implementation constraints (which signals, timing requirements, error conditions to handle).
 
 ### Test Names
 

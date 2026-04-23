@@ -1,13 +1,11 @@
 ---
 title: How It Works
-description: An overview of the clstr.io CLI, testing system, and challenge workflow.
+description: Pick a challenge, build your server in any language, and run tests that simulate real distributed systems failures. You advance stage by stage as you pass each one.
 ---
 
-clstr.io breaks down distributed systems into stages you build incrementally: databases, caches, message queues, lock services, and more. Each challenge teaches different patterns (consensus, replication, partitioning, fault tolerance), starting simple and adding complexity one stage at a time.
+[clstr.io](/) breaks down distributed systems into stages you build incrementally. Each challenge covers different patterns, from consensus and replication to partitioning and fault tolerance.
 
-Tests verify behavior against real-world scenarios: network failures, crash recovery, concurrent access. They check what your system does, not how it's built. Your system must conform to the API contract, but the implementation is up to you.
-
-Each stage explains what to implement and links out to good resources. Here's how to get started:
+Tests are black-box: they interact with your system only through HTTP and can't inspect internals, read your data files, or access implementation state. They simulate real failure conditions, killing nodes, partitioning the network, and verifying your system recovers correctly. The implementation is up to you.
 
 ## Installation
 
@@ -15,30 +13,20 @@ See [this guide](/guides/cli/#installation) on how to install the CLI on your sy
 
 ## Pick a Challenge
 
-Run `clstr list` to see all available challenges. The [distributed key-value store](/kv-store/) is the first project in clstr.io's distributed systems series.
+Run `clstr list` to see all available challenges. The [distributed key-value store](/kv-store/) is the first challenge in clstr.io's distributed systems series.
 
-### Scaffolding
-
-Run `clstr init kv-store --language <lang>` to create a new challenge directory with:
-
-- `Dockerfile`   - Builds and runs your server in a container
-- `README.md`   - Challenge overview and requirements
-- `clstr.yaml`  - Tracks your progress
+Run `clstr init kv-store --language <lang>` to scaffold a new challenge directory with `Dockerfile`, `README.md`, and `clstr.yaml` files.
 
 ## Build in Any Language
 
-Write your implementation in any language (Go, Rust, Python, whatever), then update the `Dockerfile` to build and start your server. The test runner builds your image and runs one container per node in the cluster.
+Write your server in any language. Update the `Dockerfile` to build and start it, and the test runner takes care of the rest: it builds your image and starts one container per node. The scaffolded `Dockerfile` already includes `iptables` and `iproute2`, which the runner uses to simulate network partitions and packet loss inside each container.
 
 ## Run the Tests
 
-Run `clstr test`. Tests are black-box: they interact with your system only through HTTP and can't inspect internals, read your data files, or access implementation state.
-
-Depending on the stage, tests will kill nodes (`SIGKILL`), partition nodes off from each other to simulate network splits, and verify your system recovers correctly: elects a new leader, refuses writes without quorum, recovers committed data on restart. You're tested on behavior under failure conditions, not just the happy path.
+Run `clstr test`. If something fails, the CLI tells you what went wrong and links to the relevant stage guide. Fix it and run again.
 
 ## Advance
 
-When you pass, run `clstr next` to unlock the next stage. Each stage builds on the previous one, gradually adding complexity. [CI](/guides/ci-cd/) runs `clstr test --so-far` on every push, so your implementation must continue satisfying all earlier stages as you advance.
+When you pass, run `clstr next` to unlock the next stage. Each stage builds on the previous one, gradually adding complexity.
 
-At any point, run `clstr status` to see your current progress and a link to the stage guide.
-
-Good luck! 🚀
+Run `clstr status` at any point to see your progress. [CI](/guides/ci-cd/) runs `clstr test --so-far` on every push, so all earlier stages must continue to pass as you advance.

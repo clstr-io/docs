@@ -1,9 +1,9 @@
 ---
 title: Leader Election
-description: Implement Raft leader election to form a static 5-node cluster.
+description: Implement Raft leader election so your cluster reliably elects and maintains a single leader, even under network partitions.
 ---
 
-In this stage, you'll implement [Raft](https://raft.github.io/raft.pdf) leader election across a static 5-node cluster.
+The previous stages built a solid single-node store. In this stage, you'll extend it into a 5-node cluster using [Raft](https://raft.github.io/raft.pdf) leader election, so the cluster can survive node failures and always agree on who's in charge.
 
 ## Cluster Formation
 
@@ -20,9 +20,9 @@ When `PEERS` is empty or unset, your node should still work on its own. You can 
 
 ## Leader Election
 
-All nodes start as followers. If a follower doesn't receive heartbeats within the **election timeout** (randomized between **500-1,000ms**), it becomes a candidate and starts an election.
+All nodes start as followers. If a follower doesn't receive heartbeats within the election timeout (randomized between `500-1,000ms`), it becomes a candidate and starts an election.
 
-This is more generous than the Raft paper's suggested 150-300ms election timeout. Each node runs in a Docker container on a shared host, which adds container network latency and scheduling jitter on top of any GC or runtime pauses in your implementation. Higher values give varying implementations room to handle these issues without spurious elections.
+This is more generous than the Raft paper's suggested `150-300ms` election timeout. Each node runs in a Docker container on a shared host, which adds container network latency and scheduling jitter on top of any GC or runtime pauses in your implementation. Higher values give varying implementations room to handle these issues without spurious elections.
 
 Candidates request votes from other nodes. A candidate becomes leader if it receives votes from a majority ($\lceil\frac{n+1}{2}\rceil$ where $n$ is the cluster size, e.g., 3 votes in a 5-node cluster). Each node grants at most one vote per term.
 
@@ -30,15 +30,15 @@ Terms act as a [logical clock](https://en.wikipedia.org/wiki/Logical_clock). Whe
 
 ## Heartbeats
 
-Leaders send `AppendEntries` RPC heartbeats every **100ms** to maintain authority. The `entries` array is empty in this stage.
+Leaders send `AppendEntries` RPC heartbeats every `100ms` to maintain authority. The `entries` array is empty in this stage.
 
 If a follower doesn't receive heartbeats within the election timeout, it starts a new election.
 
-If a leader fails to receive acknowledgments from a quorum of nodes within **500ms** (the minimum election timeout), it steps down to follower and clears its known leader, rather than continuing to serve requests it cannot commit.
+If a leader fails to receive acknowledgments from a quorum of nodes within `500ms` (the minimum election timeout), it steps down to follower and clears its known leader, rather than continuing to serve requests it cannot commit.
 
 ## Client Requests
 
-Leaders accept `GET`, `PUT`, and `DELETE` requests from the HTTP API stage.
+Leaders handle the same key-value `GET`, `PUT`, and `DELETE` requests from earlier stages.
 
 Followers redirect all requests to the leader with `307 Temporary Redirect` and a `Location` header:
 
@@ -174,7 +174,7 @@ PASSED ✓
 Run clstr next to advance to the next stage.
 ```
 
-**Example failure:**
+If a test fails, `clstr` shows what went wrong:
 
 ```console
 $ clstr test leader-election
@@ -223,7 +223,7 @@ Your implementation doesn't need to do anything special. When a node is partitio
 
 Some tests use `tc netem` to simulate degraded network conditions rather than a hard partition. The slow leader test delays the leader's outgoing traffic past the election timeout, causing followers to time out and hold a new election. The packet loss test introduces 20% random packet loss across all nodes while the leader restarts, verifying that candidates can still collect a majority of votes.
 
-Your implementation doesn't need to do anything special. Impairments are applied at the network level, so RPCs will be slower or occasionally fail, but no application-level changes are required.
+Impairments are applied at the network level, so RPCs will be slower or occasionally fail. No application-level changes are required.
 
 ## Debugging
 
@@ -286,4 +286,3 @@ $ clstr logs n4
 - [Distributed Systems 6.2: Raft](https://www.youtube.com/watch?v=uXEYuDwm7e4) by Martin Kleppmann
 - [Students' Guide to Raft](https://thesquareplanet.com/blog/students-guide-to-raft/) by Jon Gjengset
 - [Database Internals Chapter 10: Leader Election](https://www.databass.dev/) by Alex Petrov
-- [Database Internals Chapter 14: Consensus](https://www.databass.dev/) by Alex Petrov

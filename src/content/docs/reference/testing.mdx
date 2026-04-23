@@ -1,13 +1,28 @@
 ---
 title: Testing
-description: API reference for the attest testing framework used to write clstr challenge tests.
+description: API reference for attest, the testing framework used to write black-box tests for clstr challenges.
 ---
 
-The testing framework ([`attest`](https://github.com/clstr-io/clstr/tree/main/internal/attest)) provides a fluent API for writing black-box tests against programs running in Docker containers. Tests validate external behavior without accessing implementation internals.
+`attest` is the testing framework behind clstr challenges. It provides a fluent API for writing black-box tests against programs running in Docker containers, validating external behavior without accessing implementation internals. The source is at [`internal/attest`](https://github.com/clstr-io/clstr/tree/main/internal/attest).
 
-## Quick Start
+## Creating a Challenge
 
-A typical test suite:
+A challenge is a Go package that registers stages, each backed by an `attest` test suite.
+
+### Directory Structure
+
+```
+challenges/
+└── kvstore/
+    ├── init.go           # Challenge registration
+    ├── http_api.go       # Stage 1
+    ├── persistence.go    # Stage 2
+    └── crash_recovery.go # Stage 3
+```
+
+### Stage Structure
+
+Each stage is a function returning `*Suite`:
 
 ```go
 package kvstore
@@ -17,33 +32,117 @@ import (
 )
 
 func HTTPAPI() *Suite {
-    return New(
-        WithCluster(1),
-    ).
+    return New(WithCluster(1)).
 
         // 1
-        Test("PUT stores data", func(do *Do) {
+        Test("PUT Stores Values", func(do *Do) {
             do.PUT(Node("n1"), "/kv/key", "value").
                 Status(Is(200)).
-                Hint("Your server should accept PUT requests.\n" +
-                    "Ensure your HTTP handler processes PUT to /kv/{key}.").
+                Hint("Check that your HTTP handler registers PUT /kv/{key} and returns 200.").
                 Run()
         }).
 
         // 2
-        Test("GET retrieves data", func(do *Do) {
+        Test("GET Returns Stored Values", func(do *Do) {
             do.GET(Node("n1"), "/kv/key").
                 Status(Is(200)).
                 Body(Is("value")).
-                Hint("Your server should return stored values.").
+                Hint("GET /kv/{key} should return the value stored by the preceding PUT.").
                 Run()
         })
 }
 ```
 
-Tests run sequentially. State persists between tests so data written in test 1 is available in test 2. First failure stops execution.
+Import `attest` with `.` for cleaner syntax. Number tests with comments to visually separate them.
+
+### Challenge Registration
+
+Create `init.go`:
+
+```go
+package kvstore
+
+import "github.com/clstr-io/clstr/internal/registry"
+
+func init() {
+    challenge := &registry.Challenge{
+        Name: "Distributed Key-Value Store",
+        Summary: `Build a distributed key-value store from scratch.`,
+    }
+
+    challenge.AddStage("http-api", "Store and Retrieve Data", HTTPAPI)
+    challenge.AddStage("persistence", "Data Survives SIGTERM", Persistence)
+    challenge.AddStage("crash-recovery", "Data Survives SIGKILL", CrashRecovery)
+
+    registry.RegisterChallenge("kv-store", challenge)
+}
+```
+
+### Auto-Discovery
+
+Import your challenge in `challenges/challenges.go`:
+
+```go
+package challenges
+
+import (
+    _ "github.com/clstr-io/clstr/challenges/kvstore"
+)
+```
+
+## Suite Configuration
+
+### `New(opts...)`
+
+Creates a new test suite. Options configure the cluster and timeouts:
+
+```go
+// Single-node suite
+return New(WithCluster(1)).Test(...)
+
+// Five-node cluster
+return New(WithCluster(5)).Test(...)
+```
+
+### `WithCluster(n)`
+
+Declares an n-node cluster named `n1`, `n2`, ..., `nN`. Nodes are started before any tests run and stopped after.
+
+### `WithNodeStartTimeout(d)`
+
+How long to wait for a node's `GET /health` to return `200 OK` after starting (default 10s):
+
+```go
+New(WithCluster(1), WithNodeStartTimeout(30*time.Second))
+```
+
+### `WithNodeShutdownTimeout(d)`
+
+How long to wait for a node to exit after `SIGTERM` before sending `SIGKILL` (default 5s):
+
+```go
+New(WithCluster(1), WithNodeShutdownTimeout(15*time.Second))
+```
+
+### `WithRetryTimeout(d)`
+
+Default timeout for `Eventually` and `Consistently` (default 5s):
+
+```go
+New(WithCluster(1), WithRetryTimeout(10*time.Second))
+```
+
+### `WithRequestTimeout(d)`
+
+HTTP client timeout per request (default 5s):
+
+```go
+New(WithCluster(1), WithRequestTimeout(2*time.Second))
+```
 
 ## HTTP Requests
+
+Tests run sequentially. State persists between tests so data written in test 1 is available in test 2. First failure stops execution.
 
 Make HTTP requests using the method-specific helpers:
 
@@ -174,6 +273,8 @@ for _, name := range do.Nodes() {
 
 ## Check Modifiers
 
+Chain modifiers onto a request to define what a passing response looks like.
+
 ### `.Status(matchers...)`
 
 Validates the HTTP response status code:
@@ -292,6 +393,8 @@ do.GET(do.AllNodes("n1", "n2"), "/cluster/info").
 
 ## Matchers
 
+Matchers define what values satisfy a check.
+
 ### `Is(value)`
 
 Exact equality:
@@ -360,7 +463,7 @@ Status(Not(Is(500)))
 Body(Not(Contains("panic")))
 ```
 
-### Multiple matchers
+### Multiple Matchers
 
 Pass multiple matchers to any modifier; all must pass:
 
@@ -370,6 +473,8 @@ Body(Contains("Hello"), Not(Contains("error")))
 ```
 
 ## Node Management
+
+Control the lifecycle of nodes and the network during a test.
 
 ### `do.Start(name)`
 
@@ -446,10 +551,10 @@ do.Impair(do.ExceptNodes(leaderNode), Loss(20))
 
 Available impairments:
 
-- **`Delay(d, jitter...)`** : adds fixed latency. Optional jitter uses a normal distribution with 25% correlation: `Delay(100*time.Millisecond, 20*time.Millisecond)`.
-- **`Loss(pct)`** : randomly drops `pct`% of packets (25% correlation): `Loss(10)`.
-- **`Duplicate(pct)`** : sends `pct`% of packets twice: `Duplicate(1)`.
-- **`Reorder(pct)`** : delivers `pct`% of packets out of order (25% correlation). Must be combined with `Delay`: `Reorder(25)`.
+- **`Delay(d, jitter...)`**: adds fixed latency. Optional jitter uses a normal distribution with 25% correlation: `Delay(100*time.Millisecond, 20*time.Millisecond)`.
+- **`Loss(pct)`**: randomly drops `pct`% of packets (25% correlation): `Loss(10)`.
+- **`Duplicate(pct)`**: sends `pct`% of packets twice: `Duplicate(1)`.
+- **`Reorder(pct)`**: delivers `pct`% of packets out of order (25% correlation). Must be combined with `Delay`: `Reorder(25)`.
 
 ### `do.Repair(sel...)`
 
@@ -487,6 +592,8 @@ do.GET(do.AllNodes(), "/cluster/info").
 
 ## Concurrency
 
+Run operations in parallel to test concurrent behavior.
+
 ### `do.Concurrently(n, fn)`
 
 Runs `fn` `n` times in parallel, passing each invocation a 1-based index:
@@ -501,136 +608,3 @@ do.Concurrently(100, func(i int) {
 ```
 
 Waits for all goroutines to complete. If any panic, the first panic is re-raised.
-
-## Suite Configuration
-
-### `New(opts...)`
-
-Creates a new test suite. Options configure the cluster and timeouts:
-
-```go
-// Single-node suite
-return New(WithCluster(1)).Test(...)
-
-// Five-node cluster
-return New(WithCluster(5)).Test(...)
-```
-
-### `WithCluster(n)`
-
-Declares an n-node cluster named `n1`, `n2`, ..., `nN`. Nodes are started before any tests run and stopped after.
-
-### `WithNodeStartTimeout(d)`
-
-How long to wait for a node's `GET /health` to return `200 OK` after starting (default 10s):
-
-```go
-New(WithCluster(1), WithNodeStartTimeout(30*time.Second))
-```
-
-### `WithNodeShutdownTimeout(d)`
-
-How long to wait for a node to exit after `SIGTERM` before sending `SIGKILL` (default 5s):
-
-```go
-New(WithCluster(1), WithNodeShutdownTimeout(15*time.Second))
-```
-
-### `WithRetryTimeout(d)`
-
-Default timeout for `Eventually` and `Consistently` (default 5s):
-
-```go
-New(WithCluster(1), WithRetryTimeout(10*time.Second))
-```
-
-### `WithRequestTimeout(d)`
-
-HTTP client timeout per request (default 5s):
-
-```go
-New(WithCluster(1), WithRequestTimeout(2*time.Second))
-```
-
-## Creating a Challenge
-
-### Directory Structure
-
-```
-challenges/
-└── kvstore/
-    ├── init.go           # Challenge registration
-    ├── http_api.go       # Stage 1
-    ├── persistence.go    # Stage 2
-    └── crash_recovery.go # Stage 3
-```
-
-### Stage Structure
-
-Each stage is a function returning `*Suite`:
-
-```go
-package kvstore
-
-import (
-    . "github.com/clstr-io/clstr/internal/attest"
-)
-
-func HTTPAPI() *Suite {
-    return New(WithCluster(1)).
-
-        // 1
-        Test("PUT Stores Values", func(do *Do) {
-            do.PUT(Node("n1"), "/kv/key", "value").
-                Status(Is(200)).
-                Hint("Your server should accept PUT requests.").
-                Run()
-        }).
-
-        // 2
-        Test("GET Returns Stored Values", func(do *Do) {
-            do.GET(Node("n1"), "/kv/key").
-                Status(Is(200)).
-                Body(Is("value")).
-                Hint("Your server should return stored values.").
-                Run()
-        })
-}
-```
-
-Import `attest` with `.` for cleaner syntax. Number tests with comments to visually separate them.
-
-### Challenge Registration
-
-Create `init.go`:
-
-```go
-package kvstore
-
-import "github.com/clstr-io/clstr/internal/registry"
-
-func init() {
-    challenge := &registry.Challenge{
-        Name: "Distributed Key-Value Store",
-        Summary: `Build a distributed key-value store from scratch.`,
-    }
-
-    challenge.AddStage("http-api", "Store and Retrieve Data", HTTPAPI)
-    challenge.AddStage("persistence", "Data Survives SIGTERM", Persistence)
-    challenge.AddStage("crash-recovery", "Data Survives SIGKILL", CrashRecovery)
-
-    registry.RegisterChallenge("kv-store", challenge)
-}
-```
-
-### Auto-Discovery
-
-Import your challenge in `challenges/challenges.go`:
-
-```go
-package challenges
-
-import (
-    _ "github.com/clstr-io/clstr/challenges/kvstore"
-)
-```

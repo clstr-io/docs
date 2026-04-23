@@ -1,22 +1,21 @@
 ---
 title: Crash Recovery
-description: Add a write-ahead log so data survives unexpected crashes (SIGKILL).
+description: Implement a write-ahead log so your key-value store survives unexpected crashes, not just clean shutdowns.
 ---
 
-Your server currently saves data on clean shutdown but loses everything if it crashes.
-In this stage, you'll add durability so data survives unexpected failures.
+Your server survives clean shutdowns but loses everything if it crashes. In this stage, you'll add a write-ahead log so data survives unexpected failures too.
 
 ## Write-Ahead Logging
 
-Implement a [Write-Ahead Log (WAL)](https://www.architecture-weekly.com/p/the-write-ahead-log-a-foundation) that records operations before they're applied to memory. If the process crashes between a write and its memory update, the log survives and you can replay it on restart to reconstruct state.
+Implement a Write-Ahead Log (WAL) that records operations before they're applied to memory. If the process crashes between a write and its memory update, the log survives and you can replay it on restart to reconstruct state.
 
 ### Log Format
 
-Your log should record operations in append-only fashion. The format is up to you - [JSONL](https://jsonlines.org/) (one JSON object per line), binary serialization, or plain text all work.
+Your log should record operations in append-only fashion. The format is up to you: [JSONL](https://jsonlines.org/) (one JSON object per line), binary serialization, or plain text all work.
 
 Each log entry needs enough information to replay the operation:
 
-- Operation type (e.g., "set", "delete", "clear")
+- Operation type (e.g., `set`, `delete`, `clear`)
 - Key
 - Value
 - Any other metadata you need for replay
@@ -33,9 +32,9 @@ Syncing on every write is slow: you're blocking the response on a disk round-tri
 
 When your server starts:
 
-1. Load the most recent snapshot (from the persistence stage) if one exists
-2. Replay all operations from the WAL that occurred after the snapshot
-3. Resume serving requests
+- Load the most recent snapshot (from the persistence stage) if one exists
+- Replay all operations from the WAL that occurred after the snapshot
+- Resume serving requests
 
 If no snapshot exists, replay the entire log from the beginning.
 
@@ -47,9 +46,9 @@ When to checkpoint is up to you: after N operations, every M seconds, when the l
 
 After creating a snapshot:
 
-1. Write the snapshot to a new file
-2. Truncate or create a new WAL file
-3. Continue logging operations
+- Write the snapshot to a new file
+- Truncate or create a new WAL file
+- Continue logging operations
 
 On recovery, load the latest snapshot and replay only the operations logged after that snapshot.
 
@@ -57,8 +56,8 @@ On recovery, load the latest snapshot and replay only the operations logged afte
 
 You now have two types of files:
 
-- **Snapshot**: Full state at a point in time (from previous stage)
-- **WAL**: Operations logged since the last snapshot
+- Snapshot: full state at a point in time (from the previous stage)
+- WAL: operations logged since the last snapshot
 
 Organize these in the data directory however makes sense.
 
@@ -85,10 +84,10 @@ Run clstr next to advance to the next stage.
 
 The tests will:
 
-1. Store data in your server (through HTTP API calls)
-2. Kill the server process (`SIGKILL`) without warning
-3. Restart your server
-4. Verify all data that was acknowledged before the crash is still present
+- Store data in your server (through HTTP API calls)
+- Kill the server process (`SIGKILL`) without warning
+- Restart your server
+- Verify all data that was acknowledged before the crash is still present
 
 ## Debugging
 
