@@ -3,7 +3,7 @@ title: HTTP API
 description: Build an in-memory key-value store exposed over a REST API.
 ---
 
-In this stage, you'll build an in-memory key-value store and expose it over a REST API.
+In this stage, you'll build an in-memory key-value store and expose it over a REST API. It won't survive a restart yet, but it's the foundation every later stage builds on.
 
 ## Endpoints
 
@@ -68,7 +68,7 @@ DELETE /kv/{key}
 200
 ```
 
-Return `200` whether or not the key existed.
+Return `200` whether or not the key existed. Return `400` with `key cannot be empty` if the key is empty.
 
 ### DELETE /clear
 
@@ -113,23 +113,13 @@ An in-memory [map/dictionary](https://en.wikipedia.org/wiki/Associative_array) i
 
 ### Data Model
 
-Keys and values are stored as simple strings. This keeps the data model straightforward so you can focus on building intuition in distributed systems, not implementing complex data types.
-
-#### Keys
-
-Keys must contain only alphanumeric plus `:`, `_`, `.`, and `-` characters. Examples of valid keys:
+Keys and values are stored as strings. Keys must contain only alphanumeric characters plus `:`, `_`, `.`, and `-`. Examples of valid keys:
 
 - `user:123`
 - `cache_entry`
 - `metric.latency.p99`
 
-#### Values
-
-Values are UTF-8 encoded text and can contain:
-
-- Unicode characters like 😊
-- Spaces and special symbols
-- Long strings (up to reasonable memory limits)
+Values are arbitrary UTF-8 text.
 
 ## Testing
 

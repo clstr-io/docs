@@ -1,7 +1,9 @@
 ---
 title: CLI
-description: Installation instructions and command reference for the clstr CLI.
+description: Install the clstr CLI and learn how to run challenges, view logs, and advance through stages locally.
 ---
+
+The `clstr` CLI runs tests, manages your progress, and lets you inspect what's happening inside your cluster. This guide covers installation and the commands you'll use day to day.
 
 ## Installation
 
@@ -62,7 +64,7 @@ Commands support short aliases: `clstr i`, `clstr t`, `clstr n`, `clstr s`, and 
 
 ## Basic Workflow
 
-### 1. Start a Challenge
+### Pick a Challenge
 
 ```console
 $ clstr init <challenge> --language <lang> [path]
@@ -73,8 +75,6 @@ Creates a new challenge directory with:
 - `README.md`   - Challenge overview and requirements
 - `clstr.yaml`  - Tracks your progress
 
-**Examples:**
-
 ```console
 $ clstr init kv-store --language go          # Create in current directory
 $ clstr init kv-store my-kvs --language go   # Create in ./my-kvs
@@ -82,24 +82,26 @@ $ clstr init kv-store --language python      # Create with a Python Dockerfile
 $ clstr init kv-store my-kvs --language rust # Create in ./my-kvs with a Rust Dockerfile
 ```
 
-### 2. Build in Any Language
+### Build in Any Language
 
-Update the `Dockerfile` to build and start your server. You can use any language as long as the container starts your program.
+Write your server in any language. Update the `Dockerfile` to build and start it.
 
-Then test:
+### Run the Tests
 
 ```console
 $ clstr test
 ```
 
-**When tests pass:**
+When tests pass:
+
 ```
 PASSED ✓
 
 Run clstr next to advance to the next stage.
 ```
 
-**When tests fail:**
+When they fail, `clstr` shows what went wrong:
+
 ```
 FAILED ✗
 
@@ -113,9 +115,9 @@ PUT http://n1:8080/kv/ "foo"
 Read the guide: https://clstr.io/kv-store/http-api
 ```
 
-Fix the error, then run `clstr test` again. The CLI is designed for quick iteration, just keep running `clstr test` as you make changes.
+Fix the error and run `clstr test` again. The CLI is designed for quick iteration: just keep running `clstr test` as you make changes.
 
-### 3. Advance
+### Advance
 
 ```console
 $ clstr next
@@ -123,7 +125,7 @@ $ clstr next
 
 Advances to the next stage after verifying the current stage passes. Updates `clstr.yaml` automatically.
 
-It always runs tests first and only advances if they pass.
+`clstr next` always runs tests first and only advances if they pass.
 
 ## Commands Reference
 
@@ -166,7 +168,7 @@ $ clstr logs           # All nodes interleaved
 $ clstr logs n2 n4     # Only n2 and n4
 ```
 
-**Example output:**
+For example, a 3-node run with a leader crash and partition:
 
 ```
 [n1]  +0.000s     [START]
@@ -235,12 +237,3 @@ Implement leader-election, then run clstr test.
 **Usage:** `clstr list`
 
 Lists all available challenges with stage counts.
-
-## Understanding `clstr.yaml`
-
-The state file tracks your progress:
-
-```yaml
-challenge: kv-store
-stage: persistence
-```

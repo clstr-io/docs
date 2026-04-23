@@ -1,51 +1,45 @@
 ---
 title: Distributed Key-Value Store
-description: Build a distributed key-value store from scratch using Raft consensus.
+description: Build a fault-tolerant distributed key-value store from scratch using Raft consensus, progressing from a simple in-memory store to a fully replicated cluster.
 ---
 
 Welcome to the distributed key-value store challenge!
 
-You'll build a distributed key-value store from scratch using Raft consensus, the same algorithm that powers [etcd](https://etcd.io/) and [Consul](https://developer.hashicorp.com/consul). Start with a single-node system that handles persistence and crash recovery, then implement leader election, log replication, and dynamic cluster membership.
-
-This is the first project in clstr.io's distributed systems series. It teaches consensus-based replication; later projects will teach different patterns like leaderless replication, CRDTs, and Byzantine fault tolerance.
+You'll build a distributed key-value store from scratch using Raft consensus, the same algorithm that powers [etcd](https://etcd.io/) and [Consul](https://developer.hashicorp.com/consul). If you haven't already, read [how it works](/how-it-works/) before diving in.
 
 ## Stages
 
 ### [HTTP API](/kv-store/http-api/)
 
-Build a basic in-memory key-value store with GET/PUT/DELETE operations over HTTP.
+Build an in-memory key-value store exposed over a REST API.
 
 ### [Persistence](/kv-store/persistence/)
 
-Add persistence to your store. Data should survive clean shutdowns (`SIGTERM`).
+Make your key-value store survive clean shutdowns by saving state to disk and restoring it when the server restarts.
 
 ### [Crash Recovery](/kv-store/crash-recovery/)
 
-Ensure data consistency after crashes. Data should survive unexpected crashes (`SIGKILL`).
+Implement a write-ahead log so your key-value store survives unexpected crashes, not just clean shutdowns.
 
 ### [Leader Election](/kv-store/leader-election/)
 
-Form a cluster and elect a leader using the Raft consensus algorithm.
+Implement Raft leader election so your cluster reliably elects and maintains a single leader, even under network partitions.
 
 ### [Log Replication](/kv-store/log-replication/)
 
-Replicate operations from the leader to followers with strong consistency guarantees.
+Replicate writes across your Raft cluster so every committed operation survives leader failures and is consistent across all nodes.
 
 ### [Log Compaction](/kv-store/log-compaction/)
 
-Prevent unbounded log growth through snapshots and log truncation.
+Prevent unbounded log growth by snapshotting your key-value store's state and compacting the Raft log.
 
 ### [Membership Changes](/kv-store/membership-changes/)
 
-Add and remove nodes from the cluster one at a time without downtime.
+Dynamically add and remove nodes from a live Raft cluster using single-server membership changes, keeping the cluster online throughout.
 
 ### [Joint Consensus](/kv-store/joint-consensus/)
 
-Add and remove multiple nodes at once using joint consensus.
-
-## Getting Started
-
-If you haven't already, read [this overview](/how-it-works/) on how it works and then start with [stage 1 (HTTP API)](/kv-store/http-api/).
+Implement Raft joint consensus to safely resize a cluster by multiple nodes at once using overlapping `C_old` and `C_new` configurations.
 
 ## Resources
 

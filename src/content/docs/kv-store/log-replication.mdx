@@ -1,6 +1,6 @@
 ---
 title: Log Replication
-description: Replicate operations from the leader to followers with strong consistency guarantees.
+description: Replicate writes across your Raft cluster so every committed operation survives leader failures and is consistent across all nodes.
 ---
 
 // TODO
@@ -69,7 +69,7 @@ Content-Type: application/json
 
 ## Rough Notes
 
-### External contract
+### External Contract
 
 - PUT/DELETE return 200 only after the entry is committed to a majority
 - GET returns only committed, applied state
