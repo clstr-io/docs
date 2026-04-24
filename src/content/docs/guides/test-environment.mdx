@@ -1,0 +1,105 @@
+---
+title: Test Environment
+description: How the clstr test runner builds your Docker image, starts nodes, and simulates network failures.
+---
+
+When you run `clstr test`, the runner builds your Docker image, starts one container per node on a private Docker network (`clstr-net`), and fires HTTP requests at your cluster:
+
+```
+  Your Code
+      │
+      ▼
+  Dockerfile ──► Docker Image
+                      │
+  ┌───────────────────▼───────────────────┐
+  │      clstr-net - 10.0.42.0/24         │
+  │                                       │
+  │  ┌─────────┐ ┌─────────┐ ┌─────────┐  │
+  │  │   n1    │ │   n2    │ │   n3    │  │
+  │  │  :8080  │ │  :8080  │ │  :8080  │  │
+  │  └────┬────┘ └────┬────┘ └────┬────┘  │
+  │  ┌────┴────┐ ┌────┴────┐ ┌────┴────┐  │
+  │  │/app/data│ │/app/data│ │/app/data│  │
+  │  └─────────┘ └─────────┘ └─────────┘  │
+  │                                       │
+  └───────────────────┬───────────────────┘
+                      ▲ HTTP
+                 ┌────┴──────┐
+                 │ clstr CLI │
+                 └───────────┘
+```
+
+## Image Build
+
+The runner builds your `Dockerfile` before each test run. It tags the resulting image and reuses it for all nodes in that run, so every node runs the same binary.
+
+The build runs in the directory containing your `clstr.yaml`. If your build fails, the runner reports the build output and stops before starting any containers.
+
+Before each run, the runner removes any leftover containers, volumes, and log files from previous runs, so tests always start from a clean state.
+
+## Container Lifecycle
+
+Once the image is built, the runner starts all nodes simultaneously on the `clstr-net` Docker network (`10.0.42.0/24`). Each node is a separate container named `n1`, `n2`, and so on, assigned a fixed IP: `n1` is `10.0.42.101`, `n2` is `10.0.42.102`, and so on. Containers run with the `NET_ADMIN` capability so the runner can apply `iptables` rules and `tc netem` impairments from inside the container.
+
+After starting each container, the runner polls `GET /health` periodically until it returns `200 OK`. If a node doesn't respond within the startup timeout (default 10 seconds), the runner kills it and fails the test with a startup error. Your health endpoint doesn't need to return a body, the status code is enough.
+
+After all nodes are healthy, the tests run in sequence. When the test suite finishes, all containers are stopped.
+
+## Environment Variables
+
+The runner injects three environment variables into every container:
+
+- `ADDR`: this node's own address, in `host:port` form (e.g., `10.0.42.101:8080`). Use this as the node's stable identity when communicating with peers.
+- `PEERS`: a comma-separated list of every other node's address (e.g., `10.0.42.102:8080,10.0.42.103:8080`). Empty when the cluster has only one node.
+- `DATA_DIR`: the directory where your server should write persistent data (i.e., `/app/data`). This directory is backed by a Docker volume that survives container restarts within a run, so data written before a crash is available when the node comes back up.
+
+Early stages run a single node with `PEERS` set to an empty string. Your server should still start and work correctly when `PEERS` is empty or unset. You can verify this with `clstr test --so-far` after adding cluster support.
+
+## Network Partitions
+
+Partition tests apply `iptables DROP` rules on both the `INPUT` and `OUTPUT` `iptables` chains inside each container:
+
+```
+iptables -A INPUT  -s <peer_ip> -j DROP
+iptables -A OUTPUT -d <peer_ip> -j DROP
+```
+
+Rules are bidirectional: a partitioned node can neither send to nor receive from nodes in the other group. TCP connections to a partitioned peer time out or fail at the OS level.
+
+When the partition heals, the runner flushes all rules on every node (`iptables -F`), restoring full connectivity. This is why your `Dockerfile` must include `iptables`.
+
+## Network Impairments
+
+Some tests degrade the network rather than partition it, using `tc netem` on the `eth0` interface inside each container:
+
+```
+tc qdisc replace dev eth0 root netem [args]
+```
+
+Available impairments and their effect on outgoing packets:
+
+- `Delay`: adds fixed latency, with optional jitter using a normal distribution and 25% correlation
+- `Loss`: randomly drops a percentage of packets with 25% correlation
+- `Duplicate`: sends a percentage of packets twice
+- `Reorder`: delivers a percentage of packets out of order with 25% correlation (requires `Delay`)
+
+Multiple impairments combine into a single `tc netem` command. When repaired, the runner removes the qdisc entirely (`tc qdisc del dev eth0 root`). This is why your `Dockerfile` must include `iproute2`.
+
+Unlike a partition, impaired nodes can still communicate; requests are just slower or occasionally lost.
+
+## Log Capture
+
+The runner captures `stdout` and `stderr` from every container throughout the test run, including across restarts. Lifecycle events appear inline in the log timeline alongside your application output:
+
+- `[START]` / `[STOP]` / `[KILL]` / `[RESTART]`
+- `[PARTITIONED FROM: n3, n4, n5]` / `[PARTITION HEALED]`
+- `[IMPAIRED: packet delay 0.1s, packet loss 5%]` / `[REPAIRED]`
+
+Logs persist for the duration of the run even if a node crashes or is killed. View them with `clstr logs` after a test run:
+
+```console
+$ clstr logs           # all nodes interleaved
+$ clstr logs n2 n4     # only n2 and n4
+```
+
+Logging state transitions makes these logs much more useful when debugging a failing stage. Good candidates: node startup (with `ADDR`), role changes (became leader, stepped down), vote decisions (granted or denied, and why), heartbeat timeouts, and crash recovery progress. Terse structured lines like `Became leader term=4` are easier to scan than verbose prose.
