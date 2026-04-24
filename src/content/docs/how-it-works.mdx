@@ -7,6 +7,30 @@ description: Pick a challenge, build your server in any language, and run tests 
 
 Tests are black-box: they interact with your system only through HTTP and can't inspect internals, read your data files, or access implementation state. They simulate real failure conditions, killing nodes, partitioning the network, and verifying your system recovers correctly. The implementation is up to you.
 
+```
+  Your Code
+      │
+      ▼
+  Dockerfile ──► Docker Image
+                      │
+  ┌───────────────────▼───────────────────┐
+  │      clstr-net - 10.0.42.0/24         │
+  │                                       │
+  │  ┌─────────┐ ┌─────────┐ ┌─────────┐  │
+  │  │   n1    │ │   n2    │ │   n3    │  │
+  │  │  :8080  │ │  :8080  │ │  :8080  │  │
+  │  └────┬────┘ └────┬────┘ └────┬────┘  │
+  │  ┌────┴────┐ ┌────┴────┐ ┌────┴────┐  │
+  │  │/app/data│ │/app/data│ │/app/data│  │
+  │  └─────────┘ └─────────┘ └─────────┘  │
+  │                                       │
+  └───────────────────┬───────────────────┘
+                      ▲ HTTP
+                 ┌────┴──────┐
+                 │ clstr CLI │
+                 └───────────┘
+```
+
 ## Installation
 
 See [this guide](/guides/cli/#installation) on how to install the CLI on your system.
@@ -19,7 +43,7 @@ Run `clstr init kv-store --language <lang>` to scaffold a new challenge director
 
 ## Build in Any Language
 
-Write your server in any language. Update the `Dockerfile` to build and start it, and the test runner takes care of the rest: it builds your image and starts one container per node. The scaffolded `Dockerfile` already includes `iptables` and `iproute2`, which the runner uses to simulate network partitions and packet loss inside each container.
+Write your server in any language. Update the `Dockerfile` to build and start it, and the test runner takes care of the rest: it builds your image and starts one container per node on a shared Docker network. See the [test environment guide](/guides/test-environment/) for a full breakdown.
 
 ## Run the Tests
 
