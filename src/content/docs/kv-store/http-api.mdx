@@ -13,7 +13,7 @@ You'll implement the following endpoints:
 
 Add or update a key-value pair in the store.
 
-```
+```txt
 PUT /kv/{key}
 Content-Type: text/plain
 
@@ -40,7 +40,7 @@ The body is the value to store as plain text. Return `400` with `key cannot be e
 
 Retrieve the value associated with the given key.
 
-```
+```txt
 GET /kv/{key}
 
 ----
@@ -60,7 +60,7 @@ key not found
 
 Remove a key-value pair from the store.
 
-```
+```txt
 DELETE /kv/{key}
 
 ----
@@ -74,7 +74,7 @@ Return `200` whether or not the key existed. Return `400` with `key cannot be em
 
 Remove all key-value pairs from the store.
 
-```
+```txt
 DELETE /clear
 
 ----
@@ -86,7 +86,7 @@ DELETE /clear
 
 Reports whether the node is ready to serve requests.
 
-```
+```txt
 GET /health
 
 ----
@@ -100,7 +100,7 @@ The test harness polls this endpoint after starting each node and waits for a `2
 
 Unsupported HTTP methods on any endpoint should return:
 
-```
+```txt
 405
 Content-Type: text/plain
 

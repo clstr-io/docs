@@ -7,28 +7,29 @@ description: Pick a challenge, build your server in any language, and run tests 
 
 Tests are black-box: they interact with your system only through HTTP and can't inspect internals, read your data files, or access implementation state. They simulate real failure conditions, killing nodes, partitioning the network, and verifying your system recovers correctly. The implementation is up to you.
 
-```
+```txt
   Your Code
       |
       v
   Dockerfile --> Docker Image
-                      |
-  +-------------------v-------------------+
-  |      clstr-net - 10.0.42.0/24         |
-  |                                       |
-  |  +---------+ +---------+ +---------+  |
-  |  |   n1    | |   n2    | |   n3    |  |
-  |  |  :8080  | |  :8080  | |  :8080  |  |
-  |  +----+----+ +----+----+ +----+----+  |
-  |  +----+----+ +----+----+ +----+----+  |
-  |  |/app/data| |/app/data| |/app/data|  |
-  |  +---------+ +---------+ +---------+  |
-  |                                       |
-  +-------------------+-------------------+
-                      ^ HTTP
-                 +----+------+
-                 | clstr CLI |
-                 +-----------+
+                           |
+  +------------------------v------------------------------+
+  |                                                       |
+  |             clstr-net - 10.0.42.0/24                  |
+  |                                                       |
+  |  +-------------+   +-------------+   +-------------+  |
+  |  |     n1      |   |     n2      |   |     n3      |  |
+  |  | 10.0.42.101 |   | 10.0.42.102 |   | 10.0.42.103 |  |
+  |  +------+------+   +------+------+   +------+------+  |
+  |  +------+------+   +------+------+   +------+------+  |
+  |  |  /app/data  |   |  /app/data  |   |  /app/data  |  |
+  |  +-------------+   +-------------+   +-------------+  |
+  |                                                       |
+  +------------------------+------------------------------+
+                           ^ HTTP :8080
+                      +----+------+
+                      | clstr CLI |
+                      +-----------+
 ```
 
 ## Installation

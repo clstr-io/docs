@@ -9,7 +9,7 @@ The previous stages built a solid single-node store. In this stage, you'll exten
 
 The test harness starts each node as a Docker container on a shared network and sets two environment variables:
 
-```
+```txt
 ADDR=10.0.42.101:8080
 PEERS=10.0.42.102:8080,10.0.42.103:8080,10.0.42.104:8080,10.0.42.105:8080
 ```
@@ -42,7 +42,7 @@ Leaders handle the same key-value `GET`, `PUT`, and `DELETE` requests from earli
 
 Followers redirect all requests to the leader with `307 Temporary Redirect` and a `Location` header:
 
-```
+```txt
 HTTP/1.1 307 Temporary Redirect
 Location: http://10.0.42.101:8080/kv/mykey
 ```
@@ -59,7 +59,7 @@ Persist `currentTerm` and `votedFor` to disk before responding to any RPC that c
 
 Invoked by candidates to gather votes during leader election.
 
-```
+```txt
 POST /raft/request-vote
 Content-Type: application/json
 
@@ -91,7 +91,7 @@ Content-Type: application/json
 
 Used for heartbeats (empty entries) to maintain leader authority.
 
-```
+```txt
 POST /raft/append-entries
 Content-Type: application/json
 
@@ -125,7 +125,7 @@ Content-Type: application/json
 
 Returns the node's current cluster state.
 
-```
+```txt
 GET /cluster/info
 
 ----

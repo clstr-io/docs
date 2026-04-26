@@ -11,7 +11,7 @@ description: Replicate writes across your Raft cluster so every committed operat
 
 Extends the heartbeat RPC from leader election to carry actual log entries.
 
-```
+```txt
 POST /raft/append-entries
 Content-Type: application/json
 
@@ -47,7 +47,7 @@ Content-Type: application/json
 
 Returns current log entries (after the snapshot point, if any), commit index, and last applied index.
 
-```
+```txt
 GET /log
 
 ----
