@@ -132,6 +132,7 @@ export default defineConfig({
                     { label: 'CLI', slug: 'guides/cli' },
                     { label: 'CI/CD', slug: 'guides/ci-cd' },
                     { label: 'Test Environment', slug: 'guides/test-environment' },
+                    { label: 'Troubleshooting', slug: 'guides/troubleshooting' },
                 ],
             },
             {

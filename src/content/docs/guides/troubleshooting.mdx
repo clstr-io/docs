@@ -1,0 +1,28 @@
+---
+title: Troubleshooting
+description: Common errors and how to fix them when running clstr tests.
+---
+
+## `docker` not found in `$PATH`
+
+```console
+$ clstr test http-api
+Testing http-api: Store and Retrieve Data
+
+✗ CLUSTER STARTUP
+
+docker not found in $PATH
+
+FAILED ✗
+```
+
+`clstr` couldn't find a `docker` binary on your `PATH`. Install a Docker-compatible runtime: the [Docker Engine](https://docs.docker.com/engine/install/) on Linux, or [OrbStack](https://orbstack.dev/) or [Docker Desktop](https://www.docker.com/products/docker-desktop/) on Mac.
+
+After installing, verify the CLI is available:
+
+```console
+$ docker --version
+Docker version 29.4.0, build 9d7ad9f
+```
+
+If this fails in the same terminal where you ran `clstr`, your shell hasn't picked up the updated `PATH` yet. Run `source ~/.zshrc` (or your shell's equivalent) and try again. Once `docker --version` succeeds, make sure the daemon is running, then retry `clstr test`.
