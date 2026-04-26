@@ -5,28 +5,29 @@ description: How the clstr test runner builds your Docker image, starts nodes, a
 
 When you run `clstr test`, the runner builds your Docker image, starts one container per node on a private Docker network (`clstr-net`), and fires HTTP requests at your cluster:
 
-```
+```txt
   Your Code
       |
       v
   Dockerfile --> Docker Image
-                      |
-  +-------------------v-------------------+
-  |      clstr-net - 10.0.42.0/24         |
-  |                                       |
-  |  +---------+ +---------+ +---------+  |
-  |  |   n1    | |   n2    | |   n3    |  |
-  |  |  :8080  | |  :8080  | |  :8080  |  |
-  |  +----+----+ +----+----+ +----+----+  |
-  |  +----+----+ +----+----+ +----+----+  |
-  |  |/app/data| |/app/data| |/app/data|  |
-  |  +---------+ +---------+ +---------+  |
-  |                                       |
-  +-------------------+-------------------+
-                      ^ HTTP
-                 +----+------+
-                 | clstr CLI |
-                 +-----------+
+                           |
+  +------------------------v------------------------------+
+  |                                                       |
+  |             clstr-net - 10.0.42.0/24                  |
+  |                                                       |
+  |  +-------------+   +-------------+   +-------------+  |
+  |  |     n1      |   |     n2      |   |     n3      |  |
+  |  | 10.0.42.101 |   | 10.0.42.102 |   | 10.0.42.103 |  |
+  |  +------+------+   +------+------+   +------+------+  |
+  |  +------+------+   +------+------+   +------+------+  |
+  |  |  /app/data  |   |  /app/data  |   |  /app/data  |  |
+  |  +-------------+   +-------------+   +-------------+  |
+  |                                                       |
+  +------------------------+------------------------------+
+                           ^ HTTP :8080
+                      +----+------+
+                      | clstr CLI |
+                      +-----------+
 ```
 
 ## Image Build
@@ -59,9 +60,9 @@ Early stages run a single node with `PEERS` set to an empty string. Your server 
 
 Partition tests apply `iptables DROP` rules on both the `INPUT` and `OUTPUT` `iptables` chains inside each container:
 
-```
-iptables -A INPUT  -s <peer_ip> -j DROP
-iptables -A OUTPUT -d <peer_ip> -j DROP
+```console
+$ iptables -A INPUT  -s <peer_ip> -j DROP
+$ iptables -A OUTPUT -d <peer_ip> -j DROP
 ```
 
 Rules are bidirectional: a partitioned node can neither send to nor receive from nodes in the other group. TCP connections to a partitioned peer time out or fail at the OS level.
@@ -72,8 +73,8 @@ When the partition heals, the runner flushes all rules on every node (`iptables 
 
 Some tests degrade the network rather than partition it, using `tc netem` on the `eth0` interface inside each container:
 
-```
-tc qdisc replace dev eth0 root netem [args]
+```console
+$ tc qdisc replace dev eth0 root netem [args]
 ```
 
 Available impairments and their effect on outgoing packets:
