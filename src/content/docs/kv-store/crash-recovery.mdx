@@ -71,11 +71,11 @@ Your server will be tested with unexpected crashes:
 $ clstr test crash-recovery
 Testing crash-recovery: Data Survives SIGKILL
 
-✓ Data Survives a Hard Crash
-✓ All Data Survives Repeated Hard Crashes
-✓ Rapid Sequential Writes Survive a Hard Crash
-✓ Rapid Concurrent Writes Survive a Hard Crash
-✓ CLEAR Survives a Hard Crash
+✓ Data Survives a Hard Crash (464ms)
+✓ All Data Survives Repeated Hard Crashes (1.76s)
+✓ Rapid Sequential Writes Survive a Hard Crash (806ms)
+✓ Rapid Concurrent Writes Survive a Hard Crash (496ms)
+✓ CLEAR Survives a Hard Crash (351ms)
 
 PASSED ✓
 
@@ -97,17 +97,32 @@ Your server's output (`stdout`/`stderr`) is captured during testing and viewable
 $ clstr logs n1
 [n1]  +0.000s     [START]
 [n1]  +0.127s     Server listening on 0.0.0.0:8080
-[n1]  +0.841s     PUT /kv/canada:capital accepted, value=Ottawa
-[n1]  +1.024s     PUT /kv/brazil:capital accepted, value=Brasilia
-[n1]  +1.209s     PUT /kv/australia:capital accepted, value=Canberra
-[n1]  +1.391s     PUT /kv/japan:capital accepted, value=Tokyo
-[n1]  +1.392s     Appended 4 entries to /app/data/wal.log
-[n1]  +1.393s     [KILL]
-[n1]  +5.001s     [START]
-[n1]  +5.127s     Server listening on 0.0.0.0:8080
-[n1]  +5.128s     Replaying 4 entries from /app/data/wal.log
-[n1]  +5.617s     GET /kv/canada:capital returning 200
-[n1]  +5.801s     GET /kv/brazil:capital returning 200
-[n1]  +5.984s     GET /kv/australia:capital returning 200
-[n1]  +6.168s     GET /kv/japan:capital returning 200
+[**]  +0.377s     [CLUSTER READY]
+[**]  +0.378s     [TEST: Data Survives a Hard Crash]
+[n1]  +0.389s     PUT /kv/canada:capital accepted, value=Ottawa
+[n1]  +0.511s     PUT /kv/brazil:capital accepted, value=Brasilia
+[n1]  +0.693s     PUT /kv/australia:capital accepted, value=Canberra
+[n1]  +0.875s     PUT /kv/japan:capital accepted, value=Tokyo
+[n1]  +0.876s     Appended 4 entries to /app/data/wal.log
+[n1]  +0.877s     [KILL]
+[n1]  +0.999s     [START]
+[n1]  +1.127s     Server listening on 0.0.0.0:8080
+[n1]  +1.128s     Replaying 4 entries from /app/data/wal.log
+[n1]  +1.217s     GET /kv/canada:capital returning 200
+[n1]  +1.401s     GET /kv/brazil:capital returning 200
+[n1]  +1.584s     GET /kv/australia:capital returning 200
+[n1]  +1.768s     GET /kv/japan:capital returning 200
+[**]  +1.769s     [TEST: All Data Survives Repeated Hard Crashes]
+[n1]  +1.781s     [KILL]
+[n1]  +1.903s     [START]
+[n1]  +2.031s     Server listening on 0.0.0.0:8080
+[n1]  +2.032s     Replaying 4 entries from /app/data/wal.log
+[**]  +2.965s     [TEST: Rapid Sequential Writes Survive a Hard Crash]
+[n1]  +3.249s     [KILL]
+[n1]  +3.371s     [START]
+[n1]  +3.499s     Server listening on 0.0.0.0:8080
+[n1]  +3.500s     Replaying 100 entries from /app/data/wal.log
+[**]  +3.771s     [TEST: Rapid Concurrent Writes Survive a Hard Crash]
+[n1]  +3.810s     [CONCURRENTLY: 1000 req, 0.00% err · p50=1ms p95=3ms p99=5ms max=5ms]
+[n1]  +3.810s     [KILL]
 ```

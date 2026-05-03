@@ -156,18 +156,18 @@ Your server will be started as a 5-node cluster, with its own address in `ADDR` 
 $ clstr test leader-election
 Testing leader-election: Cluster Elects and Maintains Leader
 
-✓ /cluster/info Returns Cluster State
-✓ Leader Election Completes
-✓ Exactly One Leader Per Term
-✓ Leader Maintains Authority via Heartbeats
-✓ Followers Redirect to Leader
-✓ Leader Handles KV Operations
-✓ New Leader Elected After Leader Crash
-✓ Partition Enforces Quorum
-✓ Leaderless Nodes Return 503
-✓ Cluster Converges After Partition Heals
-✓ Slow Leader Steps Down and Cluster Re-elects
-✓ Election Completes Under Packet Loss
+✓ /cluster/info Returns Cluster State (3ms)
+✓ Leader Election Completes (506ms)
+✓ Exactly One Leader Per Term (3.04s)
+✓ Leader Maintains Authority via Heartbeats (3.02s)
+✓ Followers Redirect to Leader (2ms)
+✓ Leader Handles KV Operations (15ms)
+✓ New Leader Elected After Leader Crash (1.57s)
+✓ Partition Enforces Quorum (6.24s)
+✓ Leaderless Nodes Return 503 (2ms)
+✓ Cluster Converges After Partition Heals (3.07s)
+✓ Slow Leader Steps Down and Cluster Re-elects (911ms)
+✓ Election Completes Under Packet Loss (1.07s)
 
 PASSED ✓
 
@@ -180,14 +180,14 @@ If a test fails, `clstr` shows what went wrong:
 $ clstr test leader-election
 Testing leader-election: Cluster Elects and Maintains Leader
 
-✓ /cluster/info Returns Cluster State
-✓ Leader Election Completes
-✓ Exactly One Leader Per Term
-✓ Leader Maintains Authority via Heartbeats
-✓ Followers Redirect to Leader
-✓ Leader Handles KV Operations
-✓ New Leader Elected After Leader Crash
-✗ Partition Enforces Quorum
+✓ /cluster/info Returns Cluster State (3ms)
+✓ Leader Election Completes (506ms)
+✓ Exactly One Leader Per Term (3.04s)
+✓ Leader Maintains Authority via Heartbeats (3.02s)
+✓ Followers Redirect to Leader (2ms)
+✓ Leader Handles KV Operations (15ms)
+✓ New Leader Elected After Leader Crash (1.57s)
+✗ Partition Enforces Quorum (3.04s)
 
 GET - 1 of 2 nodes passed (expected all 2)
   http://n1:8080/cluster/info → 200
@@ -229,36 +229,45 @@ Each node's output is captured throughout the run, including across restarts and
 $ clstr logs n1 n4
 [n4]  +0.000s     [START]
 [n1]  +0.000s     [START]
-[n4]  +0.042s     Node started addr=10.0.42.104:8080
-[n1]  +0.127s     Node started addr=10.0.42.101:8080
-[n4]  +0.151s     Election timeout, starting election for term 1
-[n4]  +0.163s     Received vote from 10.0.42.101:8080 (2/5)
-[n4]  +0.165s     Received vote from 10.0.42.102:8080 (3/5)
-[n4]  +0.165s     Became leader in term 1
-[n1]  +0.241s     Voted for 10.0.42.104:8080 in term 1
-[n1]  +0.651s     Received heartbeat from 10.0.42.104:8080, following in term 1
-[n1]  +5.001s     [KILL]
-[n1]  +7.214s     [START]
-[n1]  +7.341s     Node started addr=10.0.42.101:8080
-[n1]  +7.618s     Received heartbeat from 10.0.42.104:8080, following in term 1
-[n1]  +8.002s     [PARTITIONED FROM: n3, n4, n5]
-[n4]  +8.002s     [PARTITIONED FROM: n1, n2]
-[n1]  +8.603s     Heartbeat timeout, starting election for term 2
-[n1]  +8.611s     Received vote from 10.0.42.102:8080 (2/5)
-[n4]  +8.677s     Heartbeat to 10.0.42.101:8080 failed
-[n4]  +8.678s     Heartbeat to 10.0.42.102:8080 failed
-[n4]  +8.678s     Maintaining leadership in term 1, majority reachable
-[n1]  +9.216s     Heartbeat timeout, starting election for term 3
-[n1]  +9.224s     Received vote from 10.0.42.102:8080 (2/5)
-[n1]  +10.002s    [PARTITION HEALED]
-[n4]  +10.002s    [PARTITION HEALED]
-[n4]  +10.219s    Received RequestVote from 10.0.42.101:8080, stepping down in term 4
-[n4]  +10.220s    Voted for 10.0.42.101:8080 in term 4
-[n1]  +10.318s    Election timeout, starting election for term 4
-[n1]  +10.326s    Received vote from 10.0.42.102:8080 (2/5)
-[n1]  +10.327s    Received vote from 10.0.42.103:8080 (3/5)
-[n1]  +10.327s    Became leader in term 4
-[n4]  +10.628s    Received heartbeat from 10.0.42.101:8080, following in term 4
+[n4]  +0.142s     Node started addr=10.0.42.104:8080
+[n1]  +0.194s     Node started addr=10.0.42.101:8080
+[**]  +0.458s     [CLUSTER READY]
+[**]  +0.458s     [TEST: /cluster/info Returns Cluster State]
+[**]  +0.462s     [TEST: Leader Election Completes]
+[n4]  +0.729s     Election timeout, starting election for term 1
+[n4]  +0.731s     Received vote from 10.0.42.101:8080 (2/5)
+[n4]  +0.732s     Received vote from 10.0.42.102:8080 (3/5)
+[n4]  +0.732s     Became leader in term 1
+[n1]  +0.733s     Voted for 10.0.42.104:8080 in term 1
+[n1]  +0.968s     Received heartbeat from 10.0.42.104:8080, following in term 1
+[**]  +0.969s     [TEST: Exactly One Leader Per Term]
+[**]  +4.014s     [TEST: Leader Maintains Authority via Heartbeats]
+[**]  +7.038s     [TEST: Followers Redirect to Leader]
+[**]  +7.041s     [TEST: Leader Handles KV Operations]
+[**]  +7.057s     [TEST: New Leader Elected After Leader Crash]
+[n1]  +7.059s     [KILL]
+[n1]  +7.948s     [START]
+[n1]  +8.114s     Node started addr=10.0.42.101:8080
+[n1]  +8.142s     Received heartbeat from 10.0.42.104:8080, following in term 1
+[**]  +8.628s     [TEST: Partition Enforces Quorum]
+[n1]  +8.629s     [PARTITIONED FROM: n3, n4, n5]
+[n4]  +8.628s     [PARTITIONED FROM: n1, n2]
+[n1]  +9.299s     Election timeout, starting election for term 2
+[n1]  +9.301s     Received vote from 10.0.42.102:8080 (2/5)
+[n4]  +9.268s     Heartbeat to 10.0.42.101:8080 failed
+[n4]  +9.268s     Heartbeat to 10.0.42.102:8080 failed
+[n4]  +9.268s     Maintaining leadership in term 1, majority reachable
+[n1]  +10.423s    Election timeout, starting election for term 3
+[n1]  +10.425s    Received vote from 10.0.42.102:8080 (2/5)
+[**]  +14.866s    [TEST: Leaderless Nodes Return 503]
+[**]  +14.869s    [TEST: Cluster Converges After Partition Heals]
+[n1]  +14.870s    [PARTITION HEALED]
+[n4]  +14.870s    [PARTITION HEALED]
+[n1]  +15.123s    Vote request from 10.0.42.102:8080 for term 12
+[n4]  +15.124s    Voted for 10.0.42.102:8080 in term 12
+[n1]  +15.125s    Voted for 10.0.42.102:8080 in term 12
+[n4]  +15.125s    Received heartbeat from 10.0.42.102:8080, following in term 12
+[n1]  +15.125s    Received heartbeat from 10.0.42.102:8080, following in term 12
 ```
 
 ## Resources

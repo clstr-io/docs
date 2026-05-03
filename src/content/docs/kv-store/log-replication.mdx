@@ -3,13 +3,17 @@ title: Log Replication
 description: Replicate writes across your Raft cluster so every committed operation survives leader failures and is consistent across all nodes.
 ---
 
-// TODO
+In this stage, you'll replicate operations from the leader to followers in the cluster...
+
+## Logs
+
+...
 
 ## API
 
 ### POST /raft/append-entries
 
-Extends the heartbeat RPC from leader election to carry actual log entries.
+Extends the heartbeat RPC from the leader election stage to carry actual log entries:
 
 ```txt
 POST /raft/append-entries
@@ -42,30 +46,6 @@ Content-Type: application/json
 - `entries`: one or more log entries to append; empty for heartbeats as before
 - `leader-commit`: leader's current commit index; follower advances its own commit index to `min(leader-commit, index of last new entry)`
 - `success`: `false` if the follower's log didn't match `prev-log-index` / `prev-log-term`; leader will decrement `nextIndex` and retry
-
-### GET /log
-
-Returns current log entries (after the snapshot point, if any), commit index, and last applied index.
-
-```txt
-GET /log
-
-----
-
-200
-Content-Type: application/json
-
-{
-  "entries": [
-    { "index": 1, "term": 1, "command": "PUT foo bar" },
-    { "index": 2, "term": 1, "command": "DELETE foo" },
-    { "index": 3, "term": 2, "command": "PUT baz qux" }
-  ],
-  "commit-index": 3,
-  "last-applied": 3
-}
-```
-
 
 ## Rough Notes
 
