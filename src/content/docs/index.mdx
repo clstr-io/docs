@@ -22,18 +22,18 @@ import { Card, CardGrid, LinkButton, LinkCard } from '@astrojs/starlight/compone
 $ clstr test
 Testing leader-election: Cluster Elects and Maintains Leader
 
-✓ /cluster/info Returns Cluster State
-✓ Leader Election Completes
-✓ Exactly One Leader Per Term
-✓ Leader Maintains Authority via Heartbeats
-✓ Followers Redirect to Leader
-✓ Leader Handles KV Operations
-✓ New Leader Elected After Leader Crash
-✓ Partition Enforces Quorum
-✓ Leaderless Nodes Return 503
-✓ Cluster Converges After Partition Heals
-✓ Slow Leader Steps Down and Cluster Re-elects
-✓ Election Completes Under Packet Loss
+✓ /cluster/info Returns Cluster State (3ms)
+✓ Leader Election Completes (506ms)
+✓ Exactly One Leader Per Term (3.04s)
+✓ Leader Maintains Authority via Heartbeats (3.02s)
+✓ Followers Redirect to Leader (2ms)
+✓ Leader Handles KV Operations (15ms)
+✓ New Leader Elected After Leader Crash (1.57s)
+✓ Partition Enforces Quorum (6.24s)
+✓ Leaderless Nodes Return 503 (2ms)
+✓ Cluster Converges After Partition Heals (3.07s)
+✓ Slow Leader Steps Down and Cluster Re-elects (911ms)
+✓ Election Completes Under Packet Loss (1.07s)
 
 PASSED ✓
 

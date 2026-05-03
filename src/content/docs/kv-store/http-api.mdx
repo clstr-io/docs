@@ -131,16 +131,16 @@ You can test your implementation using the `clstr` command:
 $ clstr test http-api
 Testing http-api: Store and Retrieve Data
 
-✓ PUT Stores Values
-✓ PUT Rejects Empty Keys and Values
-✓ GET Returns Stored Values
-✓ GET Rejects Missing and Invalid Keys
-✓ DELETE Idempotently Removes Keys
-✓ DELETE Rejects Empty Keys
-✓ CLEAR Removes All Keys from the Store
-✓ Concurrent Writes to Different Keys All Succeed
-✓ Concurrent Writes to the Same Key Do Not Corrupt Data
-✓ Unsupported HTTP Methods Return 405
+✓ PUT Stores Values (15ms)
+✓ PUT Rejects Empty Keys and Values (575µs)
+✓ GET Returns Stored Values (1ms)
+✓ GET Rejects Missing and Invalid Keys (431µs)
+✓ DELETE Idempotently Removes Keys (7ms)
+✓ DELETE Rejects Empty Keys (154µs)
+✓ CLEAR Removes All Keys from the Store (7ms)
+✓ Concurrent Writes to Different Keys All Succeed (18ms)
+✓ Concurrent Writes to the Same Key Do Not Corrupt Data (5ms)
+✓ Unsupported HTTP Methods Return 405 (608µs)
 
 PASSED ✓
 
@@ -153,11 +153,16 @@ Your server's output (`stdout`/`stderr`) is captured during testing and viewable
 
 ```console
 $ clstr logs n1
-Server listening on 0.0.0.0:8080
-PUT /kv/kenya:capital accepted, value=Nairobi
-GET /kv/kenya:capital returning 200
-DELETE /kv/kenya:capital accepted
-GET /kv/kenya:capital returning 404
+[n1]  +0.000s     [START]
+[n1]  +0.127s     Server listening on 0.0.0.0:8080
+[**]  +0.379s     [CLUSTER READY]
+[**]  +0.380s     [TEST: PUT Stores Values]
+[n1]  +0.395s     PUT /kv/kenya:capital accepted, value=Nairobi
+[**]  +0.411s     [TEST: GET Returns Stored Values]
+[n1]  +0.412s     GET /kv/kenya:capital returning 200
+[**]  +0.413s     [TEST: DELETE Idempotently Removes Keys]
+[n1]  +0.420s     DELETE /kv/kenya:capital accepted
+[n1]  +0.427s     GET /kv/kenya:capital returning 404
 ```
 
 Add your own logging to help debug issues.
@@ -168,10 +173,10 @@ When tests fail, `clstr` will show you exactly what went wrong:
 $ clstr test
 Testing http-api: Store and Retrieve Data
 
-✓ PUT Stores Values
-✓ PUT Rejects Empty Keys and Values
-✓ GET Returns Stored Values
-✗ GET Rejects Missing and Invalid Keys
+✓ PUT Stores Values (15ms)
+✓ PUT Rejects Empty Keys and Values (575µs)
+✓ GET Returns Stored Values (1ms)
+✗ GET Rejects Missing and Invalid Keys (2ms)
 
 GET http://n1:8080/kv/nonexistent:key → 404
   Expected response: matching pattern /^key not found\n?$/

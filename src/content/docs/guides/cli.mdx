@@ -161,6 +161,8 @@ $ clstr test leader-election --so-far  # Test all stages up to & including leade
 
 Shows logs from all nodes interleaved by timestamp, with relative times from the first log entry. Logs persist across restarts within a run, so lifecycle events (starts, stops, kills, restarts, partitions) appear inline in the timeline alongside application logs.
 
+Cluster-wide events are prefixed `[**]` and include `[CLUSTER READY]` (when all nodes finish starting), `[TEST: ...]` (at the start of each test), and network events like partitions and repairs. These always appear even when filtering by node.
+
 With no arguments shows all nodes. Pass node names to filter:
 
 ```console
@@ -177,9 +179,12 @@ For example, a 3-node run with a leader crash and partition:
 [n1]  +0.124s     Node started addr=10.0.42.101:8080
 [n2]  +0.131s     Node started addr=10.0.42.102:8080
 [n3]  +0.139s     Node started addr=10.0.42.103:8080
+[**]  +0.458s     [CLUSTER READY]
+[**]  +0.458s     [TEST: Leader Election Completes]
 [n2]  +2.341s     Became leader term=1
 [n1]  +2.343s     Received heartbeat from 10.0.42.102:8080
 [n3]  +2.343s     Received heartbeat from 10.0.42.102:8080
+[**]  +3.002s     [TEST: New Leader Elected After Leader Crash]
 [n2]  +5.000s     [KILL]
 [n1]  +5.032s     Election timeout, starting election term=2
 [n3]  +5.034s     Election timeout, starting election term=2
@@ -190,11 +195,13 @@ For example, a 3-node run with a leader crash and partition:
 [n3]  +9.001s     [RESTART]
 [n3]  +9.244s     Node started addr=10.0.42.103:8080
 [n3]  +9.251s     Received heartbeat from 10.0.42.101:8080
+[**]  +10.000s    [TEST: Partition Enforces Quorum]
 [n1]  +10.001s    [PARTITIONED FROM: n3, n4, n5]
 [n1]  +11.543s    Election timeout, starting election term=3
 [n1]  +12.891s    Election timeout, starting election term=4
 [n3]  +12.011s    Election timeout, starting election term=3
 [n3]  +12.187s    Became leader term=3
+[**]  +14.001s    [TEST: Cluster Converges After Partition Heals]
 [n1]  +14.002s    [PARTITION HEALED]
 [n1]  +14.215s    Received heartbeat from 10.0.42.103:8080, stepping down term=3
 ```
