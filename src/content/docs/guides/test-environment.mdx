@@ -92,9 +92,15 @@ Unlike a partition, impaired nodes can still communicate; requests are just slow
 
 The runner captures `stdout` and `stderr` from every container throughout the test run, including across restarts. Lifecycle events appear inline in the log timeline alongside your application output:
 
-- `[START]` / `[STOP]` / `[KILL]` / `[RESTART]`
+- `[START]` / `[STOP]` / `[KILL]` / `[RESTART: STOP]` / `[RESTART: KILL]`
 - `[PARTITIONED FROM: n3, n4, n5]` / `[PARTITION HEALED]`
 - `[IMPAIRED: packet delay 0.1s, packet loss 5%]` / `[REPAIRED]`
+
+Cluster-wide events are prefixed `[**]` rather than a node name and are always shown, even when filtering by node:
+
+- `[CLUSTER READY]`: emitted once after all nodes pass their health check and before the first test runs
+- `[TEST: <name>]`: emitted at the start of each test, making it easy to find which test was running when a given node event occurred
+- `[CONCURRENTLY: 1000 req, 0.00% err · p50=1ms p95=3ms p99=5ms max=5ms]`: emitted on each targeted node after a `Concurrently` call completes, summarizing request count, error rate, and latency percentiles
 
 Logs persist for the duration of the run even if a node crashes or is killed. View them with `clstr logs` after a test run:
 

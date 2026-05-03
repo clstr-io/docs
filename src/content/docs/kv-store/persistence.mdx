@@ -70,27 +70,25 @@ $ clstr logs n1
 [n1]  +0.393s     PUT /kv/kenya:capital accepted, value=Nairobi
 [n1]  +0.511s     PUT /kv/germany:capital accepted, value=Berlin
 [n1]  +0.512s     Flushing 2 keys to /app/data/store.json
-[n1]  +0.513s     [STOP]
-[n1]  +0.576s     SIGTERM received, shutting down
-[n1]  +0.836s     [START]
+[n1]  +0.513s     [RESTART: STOP]
+[n1]  +0.576s     Server stopped
 [n1]  +0.963s     Server listening on 0.0.0.0:8080
 [n1]  +0.964s     Loaded 2 keys from /app/data/store.json
 [n1]  +1.052s     GET /kv/kenya:capital returning 200
 [n1]  +1.236s     GET /kv/germany:capital returning 200
 [**]  +1.237s     [TEST: All Data Survives Repeated Graceful Restarts]
-[n1]  +1.249s     [STOP]
-[n1]  +1.312s     SIGTERM received, shutting down
-[n1]  +1.448s     [START]
+[n1]  +1.249s     [RESTART: STOP]
+[n1]  +1.312s     Server stopped
 [n1]  +1.575s     Server listening on 0.0.0.0:8080
 [n1]  +1.576s     Loaded 2 keys from /app/data/store.json
 [**]  +2.969s     [TEST: Rapid Sequential Writes Survive a Graceful Restart]
-[n1]  +3.252s     [STOP]
-[n1]  +3.289s     SIGTERM received, shutting down
-[n1]  +3.386s     [START]
+[n1]  +3.252s     [RESTART: STOP]
+[n1]  +3.289s     Server stopped
 [n1]  +3.513s     Server listening on 0.0.0.0:8080
 [n1]  +3.514s     Loaded 100 keys from /app/data/store.json
 [**]  +3.781s     [TEST: Rapid Concurrent Writes Survive a Graceful Restart]
 [n1]  +3.810s     [CONCURRENTLY: 1000 req, 0.00% err · p50=1ms p95=4ms p99=204ms max=205ms]
-[n1]  +3.810s     [STOP]
-[n1]  +3.842s     SIGTERM received, shutting down
+[n1]  +3.810s     [RESTART: STOP]
+[n1]  +3.842s     Server stopped
+...
 ```

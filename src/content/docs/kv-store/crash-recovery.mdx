@@ -104,8 +104,7 @@ $ clstr logs n1
 [n1]  +0.693s     PUT /kv/australia:capital accepted, value=Canberra
 [n1]  +0.875s     PUT /kv/japan:capital accepted, value=Tokyo
 [n1]  +0.876s     Appended 4 entries to /app/data/wal.log
-[n1]  +0.877s     [KILL]
-[n1]  +0.999s     [START]
+[n1]  +0.877s     [RESTART: KILL]
 [n1]  +1.127s     Server listening on 0.0.0.0:8080
 [n1]  +1.128s     Replaying 4 entries from /app/data/wal.log
 [n1]  +1.217s     GET /kv/canada:capital returning 200
@@ -113,16 +112,15 @@ $ clstr logs n1
 [n1]  +1.584s     GET /kv/australia:capital returning 200
 [n1]  +1.768s     GET /kv/japan:capital returning 200
 [**]  +1.769s     [TEST: All Data Survives Repeated Hard Crashes]
-[n1]  +1.781s     [KILL]
-[n1]  +1.903s     [START]
+[n1]  +1.781s     [RESTART: KILL]
 [n1]  +2.031s     Server listening on 0.0.0.0:8080
 [n1]  +2.032s     Replaying 4 entries from /app/data/wal.log
 [**]  +2.965s     [TEST: Rapid Sequential Writes Survive a Hard Crash]
-[n1]  +3.249s     [KILL]
-[n1]  +3.371s     [START]
+[n1]  +3.249s     [RESTART: KILL]
 [n1]  +3.499s     Server listening on 0.0.0.0:8080
 [n1]  +3.500s     Replaying 100 entries from /app/data/wal.log
 [**]  +3.771s     [TEST: Rapid Concurrent Writes Survive a Hard Crash]
-[n1]  +3.810s     [CONCURRENTLY: 1000 req, 0.00% err · p50=1ms p95=3ms p99=5ms max=5ms]
-[n1]  +3.810s     [KILL]
+[n1]  +3.810s     [CONCURRENTLY: 1000 req, 0.00% err · p50=1ms p95=4ms p99=5ms max=207ms]
+[n1]  +3.810s     [RESTART: KILL]
+...
 ```
